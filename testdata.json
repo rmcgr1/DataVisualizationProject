@@ -1,0 +1,8 @@
+{
+ "name": "UMBC",
+ "children": [
+  {"name": "CAHSS", "size": 382},
+  {"name": "DANCE", "size": 3812},
+  {"name": "ECONOMICS", "size": 743}
+  ]
+}
