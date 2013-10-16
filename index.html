@@ -51,15 +51,6 @@ var div = d3.select("body").append("div")
     .style("left", margin.left + "px")
     .style("top", margin.top + "px");
 
-
- var node = div.datum(data2).selectAll(".node")
-      .data(treemap.nodes)
-    .enter().append("div")
-      .attr("class", "node")
-      .call(position)
-      .style("background", function(d) { return d.children ? color(d.name) : null; })
-      .text(function(d) { return d.children ? null : d.name; });
-
 var data_students;
 var data_ft;
 var data_pt;
