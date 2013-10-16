@@ -26,8 +26,9 @@ form {
 
 </style>
 <form>
-  <label><input type="radio" name="mode" value="size" checked> Size</label>
-  <label><input type="radio" name="mode" value="count"> Count</label>
+  <label><input type="radio" name="mode" value="ft_fac" checked> Full time Faculity by Department</label>
+  <label><input type="radio" name="mode" value="pt_fac"> Part time Faculity by Department</label>
+  <label><input type="radio" name="mode" value="students"> Students by Major</label>
 </form>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
@@ -40,7 +41,7 @@ var color = d3.scale.category20c();
 
 var treemap = d3.layout.treemap()
     .size([width, height])
-    .sticky(true)
+//    .sticky(true)
     .value(function(d) { return d.size; });
 
 var div = d3.select("body").append("div")
@@ -50,19 +51,8 @@ var div = d3.select("body").append("div")
     .style("left", margin.left + "px")
     .style("top", margin.top + "px");
 
-/*
-d3.json("flare.json", function(error, root) {
-  var node = div.datum(root).selectAll(".node")
-      .data(treemap.nodes)
-    .enter().append("div")
-      .attr("class", "node")
-      .call(position)
-      .style("background", function(d) { return d.children ? color(d.name) : null; })
-      .text(function(d) { return d.children ? null : d.name; });
-*/
 
-d3.json("testdata.json", function(error, root) {
-  var node = div.datum(root).selectAll(".node")
+ var node = div.datum(data2).selectAll(".node")
       .data(treemap.nodes)
     .enter().append("div")
       .attr("class", "node")
@@ -70,19 +60,59 @@ d3.json("testdata.json", function(error, root) {
       .style("background", function(d) { return d.children ? color(d.name) : null; })
       .text(function(d) { return d.children ? null : d.name; });
 
+var data_students;
+var data_ft;
+var data_pt;
 
-  d3.selectAll("input").on("change", function change() {
-    var value = this.value === "count"
-        ? function() { return 1; }
-        : function(d) { return d.size; };
+d3.json("Students_By_Major_hierarchy.json", function(error, root) {
+ 
+data_students = root;
 
-    node
-        .data(treemap.value(value).nodes)
-      .transition()
-        .duration(1500)
-        .call(position);
-  });
+ var node = div.datum(root).selectAll(".node")
+      .data(treemap.nodes)
+    .enter().append("div")
+      .attr("class", "node")
+      .call(position)
+      .style("background", function(d) { return d.children ? color(d.name) : null; })
+      .text(function(d) { return d.children ? null : d.name; });
 });
+
+
+d3.json("FT_By_Department.json", function(error, json) {
+    data_ft = json;
+});
+
+d3.json("PT_By_Department.json", function(error, json) {
+    data_pt = json;
+});
+
+
+d3.selectAll("input").on("change", function change() {
+
+ var data;
+ if(this.value === "ft_fac"){
+data = data_ft;
+} else if (this.value === "pt_fac"){
+data = data_pt;
+} else if (this.value === "students"){
+data = data_students;
+}
+
+
+       
+    node = div.datum(data).selectAll(".node") 
+    .data(treemap.nodes);
+
+    node.enter().append("div")
+    .attr("class", "node");
+            
+    node.transition().duration(1500).call(position)
+
+node.exit().remove()    
+});
+
+
+
 
 function position() {
   this.style("left", function(d) { return d.x + "px"; })
