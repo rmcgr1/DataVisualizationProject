@@ -1,0 +1,51 @@
+{
+ "name": "UMBC",
+ "children": [
+	{"name": "CAHSS",
+	 "children": [
+	     {"name": "Afric Std", "size": 4},
+	     {"name": "Amer Std", "size": 5},
+	     {"name": "Anc Std", "size": 6},
+	     {"name": "Dance", "size": 4},
+	     {"name": "Economics", "size": 19},
+	     {"name": "Education", "size": 19},
+	     {"name": "Emgcy Hlth Srvc", "size": 6},
+	     {"name": "English", "size": 22},
+	     {"name": "Gend & Wm Std", "size": 3},
+	     {"name": "Geog & Env Sys", "size": 14},
+	     {"name": "History", "size": 16},
+	     {"name": "Lang Lit & Cult", "size": 3},
+	     {"name": "Med & Comm Std", "size": 4},
+	     {"name": "Modern LL & IC", "size": 28},
+	     {"name": "Music", "size": 12},
+	     {"name": "Philosophy", "size": 8},
+	     {"name": "Political Sci", "size": 14},
+	     {"name": "Psychology", "size": 26},
+	     {"name": "Public Policy", "size": 8},
+	     {"name": "Socy & Anth", "size": 15},
+	     {"name": "Theatre", "size": 10},
+	     {"name": "Visual Arts", "size": 22}
+	 ]
+	},
+     {"name": "CNMS", 
+	 "children": [
+	     {"name": "Biol Sci", "size": 32},
+	     {"name": "Chemistry", "size": 20},
+	     {"name": "Math & Stat", "size": 34},
+	     {"name": "Physics", "size": 18}
+	 ]
+	},
+     {"name": "COEIT",
+      "children": [
+	  {"name": "Chem & Bioc Eng", "size": 11},
+	  {"name": "Comp Sci & EE", "size": 34},
+	  {"name": "Info Sys", "size": 25},
+	  {"name": "Mech Eng", "size": 14},
+	  {"name": "Erickson", "size": 3},
+	  {"name": "Ag Mgt & Plcy", "size": 3},
+	  {"name": "Sch of Soc Work", "size": 11},
+	  {"name": "Social Work", "size": 11}
+      ]
+     }
+  ]
+}

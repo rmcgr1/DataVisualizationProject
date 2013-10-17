@@ -26,9 +26,9 @@ form {
 
 </style>
 <form>
-  <label><input type="radio" name="mode" value="ft_fac" checked> Full time Faculity by Department</label>
+  <label><input type="radio" name="mode" value="students" checked> Students by Major</label>
+  <label><input type="radio" name="mode" value="ft_fac" > Full time Faculity by Department</label>
   <label><input type="radio" name="mode" value="pt_fac"> Part time Faculity by Department</label>
-  <label><input type="radio" name="mode" value="students"> Students by Major</label>
 </form>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
@@ -69,11 +69,11 @@ data_students = root;
 });
 
 
-d3.json("FT_By_Department.json", function(error, json) {
+d3.json("FT_By_Department_hierarchy.json", function(error, json) {
     data_ft = json;
 });
 
-d3.json("PT_By_Department.json", function(error, json) {
+d3.json("PT_By_Department_hierarchy.json", function(error, json) {
     data_pt = json;
 });
 
