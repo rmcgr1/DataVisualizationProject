@@ -35,16 +35,16 @@
   <body>
 Y-Axis
 <form>
-  <label><input type="radio" name="mode" value="students" checked> Students by Major</label>
-  <label><input type="radio" name="mode" value="ft_fac" > Full time Faculity by Department</label>
-  <label><input type="radio" name="mode" value="pt_fac"> Part time Faculity by Department</label>
+  <label><input type="radio" name="mode" value="fte_yaxis" checked> Students by Major</label>
+  <label><input type="radio" name="mode" value="ft_fac_yaxis" > Full time Faculity by Department</label>
+  <label><input type="radio" name="mode" value="pt_fac_yaxis"> Part time Faculity by Department</label>
 </form>
 
 X-Axis
 <form>
-  <label><input type="radio" name="mode" value="students" checked> Students by Major</label>
-  <label><input type="radio" name="mode" value="ft_fac" > Full time Faculity by Department</label>
-  <label><input type="radio" name="mode" value="pt_fac"> Part time Faculity by Department</label>
+  <label><input type="radio" name="mode" value="fte_xaxis" > Students by Major</label>
+  <label><input type="radio" name="mode" value="ft_fac_xaxis" checked> Full time Faculity by Department</label>
+  <label><input type="radio" name="mode" value="pt_fac_xaxis"> Part time Faculity by Department</label>
 </form>
 
 
@@ -73,14 +73,14 @@ X-Axis
       [12, "Amer Std"]
       ];
 
-      var FT_PT = [
+      var PT_FAC = [
       [4, "Afric Std"],
       [2, "Dance"],
       [9, "Amer Std"]
       ];
 
-      var xData = FTE;
-      var yData = FT_FAC;
+      var xData = FT_FAC;
+      var yData = FTE;
 
       //Set Scales and Axis
       //TODO: get max of each dataset
@@ -140,6 +140,33 @@ X-Axis
       .call(yAxis);
       
      
+      d3.selectAll("input").on("change", function change() {
+
+      var data;
+
+      if(this.value === "fte_xaxis"){
+      data = FTE;
+      } else if (this.value === "ft_fac_xaxis"){
+      data = FT_FAC;
+      } else if (this.value === "pt_fac_xaxis"){
+      data = PT_FAC;
+      }
+
+
+      
+//      node = div.datum(data).selectAll(".node") 
+//      .data(treemap.nodes);
+      
+//      node.enter().append("div")
+//      .attr("class", "node");
+      
+//      node.transition().duration(1500).call(position)
+      
+//      node.exit().remove()    
+      });
+
+
+
     </script>
     </body>
 </html>
