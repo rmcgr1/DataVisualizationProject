@@ -1,11 +1,16 @@
+//Design variables
 
 //Width and height
 var w = 500;
 var h = 200;
 var padding = 30;
 
+//Size of datapoints
 var radius_min = 5;
 var radius_max = 10;
+
+//See color_by_department to change color for each major/department
+var color = d3.scale.category20();
 
 //Test datasets
 //TODO: have this loaded from outside static files?
@@ -42,12 +47,12 @@ var yData_label = "Full Time Equivalent";
 
 var xScale = d3.scale.linear()
     //.domain([0, 100])
-    .domain([0, d3.max(getValues(xData))])
+    .domain([0, d3.max(get_values(xData))])
     .range([padding, w - padding]);
 
 var yScale = d3.scale.linear()
     //.domain([0, 100])
-    .domain([0, d3.max(getValues(yData))])
+    .domain([0, d3.max(get_values(yData))])
     .range([h - padding, padding]);
 
 //Define X axis
@@ -72,13 +77,17 @@ var svg = d3.select("body")
 //Push Data Elements
 
 //Determine radius from x-axis values, map between radius_min and radius_max
-var min = d3.min(getValues(xData));
-var max = d3.max(getValues(xData));
+var min = d3.min(get_values(xData));
+var max = d3.max(get_values(xData));
 
 svg.selectAll("circle")
     .data(xData)
     .enter()
     .append("circle")
+    .style("stroke", "gray")
+    .style("fill", function(d){
+	    return color_by_department(d[1]);
+	})
     .attr("cx", function(d) {
 	    return xScale(d[0]);
 	})
@@ -89,8 +98,8 @@ svg.selectAll("circle")
 	    return scale_radius(d[0],min,max);
 	})
     .append("svg:title")
-    .text(function(d,i){ return d[1] + "  " + xData_label + ": " + d[0] + " " + yData_label+ ": " + yData[i][0]});
-
+    .text(function(d,i){ return d[1] + "\n" + xData_label + ": " + d[0] + "\n" + yData_label+ ": " + yData[i][0]});
+    
 //Create X axis
 svg.append("g")
     .attr("class", "x-axis")  //Assign "axis" class
@@ -125,15 +134,15 @@ d3.selectAll("input").on("change", function change() {
 	}
 	
 	//Resize range for plotting new values and each axis
-	xScale.domain([0, d3.max(getValues(xData))])
+	xScale.domain([0, d3.max(get_values(xData))])
 	    .range([padding, w - padding]);
 	
-	yScale.domain([0, d3.max(getValues(yData))])
+	yScale.domain([0, d3.max(get_values(yData))])
 	    .range([h - padding, padding]);
 
 	//get min and max of new dataset to draw the radius
-	var min = d3.min(getValues(xData));
-	var max = d3.max(getValues(xData));
+	var min = d3.min(get_values(xData));
+	var max = d3.max(get_values(xData));
 
 
 	var circles = svg.selectAll("circle")
@@ -149,7 +158,6 @@ d3.selectAll("input").on("change", function change() {
 	    .attr("r", function(d){
 		    return scale_radius(d[0],min,max);
 		});
-
 
 	
 	
@@ -174,10 +182,24 @@ function scale_radius(val, min, max){
 }
 
 
-function getValues(arr){
+function get_values(arr){
     var val_array = [];
     for (var i = 0; i < arr.length; i++) {
 	val_array.push(arr[i][0]);
     }      
     return val_array;
+}
+
+function color_by_department(department){
+
+    if(department === "Afric Std"){
+	return color(0);
+    } else if (department === "Dance"){
+	return color(1);
+    } else if (department === "Amer Std"){
+	return color(2);
+    } else if (department === "CMSC"){
+	console.log(color(29));
+	return color(29);
+    }
 }
