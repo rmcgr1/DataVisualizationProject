@@ -4,7 +4,8 @@ var w = 500;
 var h = 200;
 var padding = 30;
 
-var dataset = [];
+var radius_min = 5;
+var radius_max = 10;
 
 //Test datasets
 //TODO: have this loaded from outside static files?
@@ -12,20 +13,23 @@ var dataset = [];
 var FTE = [
 	   [15, "Afric Std"], 
 	   [30, "Dance"], 
-	   [40, "Amer Std"]
+	   [40, "Amer Std"],
+	   [35, "CMSC"]
 	   ];
 
 
 var FT_FAC = [
 	      [2, "Afric Std"],
 	      [9, "Dance"],
-	      [12, "Amer Std"]
+	      [12, "Amer Std"],
+	      [0, "CMSC"]
 	      ];
 
 var PT_FAC = [
 	      [4, "Afric Std"],
 	      [2, "Dance"],
-	      [9, "Amer Std"]
+	      [9, "Amer Std"],
+	      [10, "CMSC"]
 	      ];
 
 var xData = FT_FAC;
@@ -65,6 +69,10 @@ var svg = d3.select("body")
 
 //Push Data Elements
 
+//Determine radius from x-axis values, map between radius_min and radius_max
+var min = d3.min(getValues(xData));
+var max = d3.max(getValues(xData));
+
 svg.selectAll("circle")
     .data(xData)
     .enter()
@@ -75,7 +83,9 @@ svg.selectAll("circle")
     .attr("cy", function(d,i) {
 	    return yScale(yData[i][0]);
 	})
-    .attr("r", 5);
+    .attr("r", function(d){
+	    return scale_radius(d[0],min,max);
+	});
 
 svg.append("g")
     .attr("class", "x-axis")  //Assign "axis" class
@@ -116,6 +126,10 @@ d3.selectAll("input").on("change", function change() {
 	yScale.domain([0, d3.max(getValues(yData))])
 	    .range([h - padding, padding]);
 
+	//get min and max of new dataset to draw the radius
+	var min = d3.min(getValues(xData));
+	var max = d3.max(getValues(xData));
+
 
 	var circles = svg.selectAll("circle")
 	    .data(xData)
@@ -126,7 +140,11 @@ d3.selectAll("input").on("change", function change() {
 		})
 	    .attr("cy", function(d,i) {
 		    return yScale(yData[i][0]);
+		})
+	    .attr("r", function(d){
+		    return scale_radius(d[0],min,max);
 		});
+
 
 	
 	
@@ -145,6 +163,11 @@ d3.selectAll("input").on("change", function change() {
 //////
 // Helper Functions
 //////
+
+function scale_radius(val, min, max){
+    return radius_min + (radius_max - radius_min) * (val - min)/(max - min);
+}
+
 
 function getValues(arr){
     var val_array = [];
