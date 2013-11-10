@@ -34,6 +34,8 @@ var PT_FAC = [
 
 var xData = FT_FAC;
 var yData = FTE;
+var xData_label = "Full Time Faculty";
+var yData_label = "Full Time Equivalent";
 
 //Set Scales and Axis
 //TODO: get max of each dataset
@@ -85,8 +87,11 @@ svg.selectAll("circle")
 	})
     .attr("r", function(d){
 	    return scale_radius(d[0],min,max);
-	});
+	})
+    .append("svg:title")
+    .text(function(d,i){ return d[1] + "  " + xData_label + ": " + d[0] + " " + yData_label+ ": " + yData[i][0]});
 
+//Create X axis
 svg.append("g")
     .attr("class", "x-axis")  //Assign "axis" class
     .attr("transform", "translate(0," + (h - padding) + ")")
