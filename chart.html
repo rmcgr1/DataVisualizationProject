@@ -5,17 +5,11 @@
     <title>FTES per FT Faculty by Majors per FT Faculty - Fall 2012</title>
     <script type="text/javascript" src="d3/d3.v3.min.js"></script>
     <style type="text/css">
-      /* No style rules here yet */
-
-      .chart rect {
-      stroke: white;
-      fill: steelblue;
-      }
-
-      .start rect {
-      stroke: black;
-      fill: red;
-      }
+    
+      body {font-family:Sans-serf;}
+      h1 {font-family:Sans-serf;}
+      h2 {font-family:Sans-serf;}
+      p {font-family:Sans-serf;}
 
       .x-axis path,
       .x-axis line {
@@ -49,16 +43,17 @@
 Y-Axis
 <form>
   <label><input type="radio" name="mode" value="fte_yaxis" checked> Students by Major</label>
-  <label><input type="radio" name="mode" value="ft_fac_yaxis" > Full time Faculity by Department</label>
-  <label><input type="radio" name="mode" value="pt_fac_yaxis"> Part time Faculity by Department</label>
+  <label><input type="radio" name="mode" value="ft_fac_yaxis" > Full time Faculty by Department</label>
+  <label><input type="radio" name="mode" value="pt_fac_yaxis"> Part time Faculty by Department</label>
 </form>
 <br>
 X-Axis (determines radius/size - each set of values is mapped to between a radius of 5 and 15 pts)
 <form>
   <label><input type="radio" name="mode" value="fte_xaxis" > Students by Major</label>
-  <label><input type="radio" name="mode" value="ft_fac_xaxis" checked> Full time Faculity by Department</label>
-  <label><input type="radio" name="mode" value="pt_fac_xaxis"> Part time Faculity by Department</label>
+  <label><input type="radio" name="mode" value="ft_fac_xaxis" checked> Full time Faculty by Department</label>
+  <label><input type="radio" name="mode" value="pt_fac_xaxis"> Part time Faculty by Department</label>
 </form>
+<br>
 
 
     <script type="text/javascript" src="visualization.js"></script>
