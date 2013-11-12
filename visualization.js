@@ -10,11 +10,12 @@ var radius_min = 5;
 var radius_max = 10;
 
 //See color_by_department to change color for each major/department
+//TODO: Brandon has a better way to implement color/glyphs
 var color = d3.scale.category20();
 
 //Test datasets
-//TODO: have this loaded from outside static files?
-//TODO: does not like zero values
+//TODO: have this loaded from outside static files
+//TODO: ratios, div by zero, does not like zero values
 
 var FTE = [
 	   [15, "Afric Std"], 
@@ -38,12 +39,13 @@ var PT_FAC = [
 	      [10, "CMSC"]
 	      ];
 
-//Data variables - these need to match with what is checked by default in the forms
+//Data variables - these need to match with what is checked by default in the HTML radio button forms
 var xData_numerator = FT_FAC;
 var xData_denominator = FT_FAC;
 var yData_numerator = FTE;
 var yData_denominator = FTE;
 
+//These are the actual ratio values that are plotted
 var xData = get_ratio_values(xData_numerator, xData_denominator);
 var yData = get_ratio_values(yData_numerator, yData_denominator);
 
@@ -53,8 +55,7 @@ var yData_label_numerator = "Full Time Equivalent Student";
 var yData_label_denominator = "Full Time Equivalent Student";
 
 //Set Scales and Axis
-//TODO: get max of each dataset
-
+//Currently, each scale goes from zero to the greatest (max) ratio value, this can be changed eaisly
 var xScale = d3.scale.linear()
     //.domain([0, 100])
     .domain([0, d3.max(get_values(xData))])
@@ -66,6 +67,7 @@ var yScale = d3.scale.linear()
     .range([h - padding, padding]);
 
 //Define X axis
+//TODO: Set a label for axis?
 var xAxis = d3.svg.axis()
     .scale(xScale)
     .orient("bottom")
@@ -78,23 +80,27 @@ var yAxis = d3.svg.axis()
     .ticks(5);
 
 //Create SVG element
-
 var svg = d3.select("body")
     .append("svg")
     .attr("width", w)
     .attr("height", h);
 
 //Create tooltip
+//This will be applied to each circle later as the text that pops-up on hover
 var tooltip = d3.select("body")
     .append("div")
     .style("position", "absolute")
     .style("z-index", "10")
     .style("visibility", "hidden");
-    //    .text("a simple tooltip");
 
-//Push Data Elements
+//////
+//Create Data Elements
+//////
 
 //Determine radius from x-axis values, map between radius_min and radius_max
+//TODO: how are representing the radius value? 
+
+//min and max are used to set the ranges for the radius scaling
 var min = d3.min(get_values(xData));
 var max = d3.max(get_values(xData));
 
@@ -123,7 +129,7 @@ svg.selectAll("circle")
     .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
 
 
-//Old tooltip    
+//Old tooltip style   
 //    .append("svg:title")
 //    .text(function(d,i){ return d[1] + "\n" + xData_label + ": " + d[0] + "\n" + yData_label+ ": " + yData[i][0]});
     
@@ -140,6 +146,7 @@ svg.append("g")
     .call(yAxis);
 
 
+//This code is called when the radio buttons are changed
 d3.selectAll("input").on("change", function change() {
 	
 	if(this.value === "fte_xaxis_numerator"){
@@ -160,22 +167,19 @@ d3.selectAll("input").on("change", function change() {
 	}else if (this.value === "pt_fac_xaxis_denominator"){
 	    xData_denominator = PT_FAC;
 	    xData_label_denominator = "Part Time Faculty";
-	}
-	else if (this.value === "fte_yaxis_numerator"){
+	}else if (this.value === "fte_yaxis_numerator"){
 	    yData_numerator = FTE;
 	    yData_label_numerator = "Full Time Equivalent Student";
 	}else if (this.value === "fte_yaxis_denominator"){
 	    yData_denominator = FTE;
 	    yData_label_denominator = "Full Time Equivalent Student";
-	}
-	else if (this.value === "ft_fac_yaxis_numerator"){
+	}else if (this.value === "ft_fac_yaxis_numerator"){
 	    yData_numerator = FT_FAC;
 	    yData_label_numerator = "Full Time Faculty";
 	}else if (this.value === "ft_fac_yaxis_denominator"){
 	    yData_denominator = FT_FAC;
 	    yData_label_denominator = "Full Time Faculty";
-	}    
-	else if (this.value === "pt_fac_yaxis_numerator"){
+	}else if (this.value === "pt_fac_yaxis_numerator"){
 	    yData_numerator = PT_FAC;
 	    yData_label_numerator = "Part Time Faculty";
 	}else if (this.value === "pt_fac_yaxis_denominator"){
@@ -230,6 +234,7 @@ d3.selectAll("input").on("change", function change() {
 // Helper Functions
 //////
 
+//Scales x that is a range between to min and max, to between a new range of radius_min and radius_max
 function scale_radius(val, min, max){
     if(min == max){
 	console.log("Warning: scaling radius with min value == max value, setting max = min * 2");
@@ -238,6 +243,7 @@ function scale_radius(val, min, max){
     return radius_min + (radius_max - radius_min) * (val - min)/(max - min);
 }
 
+//Return an array that has the first element as arr1/arr2 and second element as the data label
 function get_ratio_values(arr1, arr2){
     ratio_arr = [];
     for (var i = 0; i < arr1.length; i++){
@@ -254,6 +260,7 @@ function get_ratio_values(arr1, arr2){
     return ratio_arr;
 }
 
+//Return the first value of arr (used for d3.min and d3.max functions)
 function get_values(arr){
     var val_array = [];
     for (var i = 0; i < arr.length; i++) {
@@ -262,8 +269,8 @@ function get_values(arr){
     return val_array;
 }
 
-function color_by_department(department){
 
+function color_by_department(department){
     if(department === "Afric Std"){
 	return color(0);
     } else if (department === "Dance"){
