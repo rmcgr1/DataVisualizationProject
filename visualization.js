@@ -13,7 +13,7 @@ var radius_max = 25;
 var color = d3.scale.category20();
 
 // Selection groups, which identify their columns
-var sel_indexes = [7, 8, 9, 20, 21, 22, 32, 31]
+var sel_indexes = [7, 8, 9, 20, 21, 22, 32, 31, 10, 11, 15]
 var sel_labels = [
 					"Undergrad Majors",
 					"Grad Majors",
@@ -22,7 +22,10 @@ var sel_labels = [
 					"Full Time Grad",
 					"Full Time Total",
 					"Research Funding",
-					"Space Available"
+					"Space Available",
+					"Full Time Employee",
+					"Part Time Employee",
+					"T/TT Employee"
 			];
 
 // Title, Color, Shape, in order of 0 to 4 as majors are labelled
@@ -41,7 +44,8 @@ var x_median = 0;
 var y_median = 0;
 
 //Index of the denominator
-var denominator = 10; 
+var x_denom = 10; 
+var y_denom = 10;
 
 // Initial Indexes and variables
 var xind = 22;
@@ -80,8 +84,8 @@ d3.text("alldata.csv", function(unParsed)
 
 	set_data();
 
-xData = get_ratio_values(xind, denominator);
-yData = get_ratio_values(yind, denominator);
+xData = get_ratio_values(xind, x_denom);
+yData = get_ratio_values(yind, y_denom);
 
 xScale = d3.scale.linear()
     //.domain([0, 100])
@@ -116,9 +120,9 @@ svg = d3.select("#scatter")
     .attr("height", h);
 
 
-xData_label_numerator = sel_labels[xind];
+xData_label_numerator = "Full Time Enrollments";
 xData_label_denominator = "Full Time Faculty";
-yData_label_numerator = sel_labels[yind];
+yData_label_numerator = "Total Majors";
 yData_label_denominator = "Full Time Faculty";
 
 //Determine radius from x-axis values, map between radius_min and radius_max
@@ -201,10 +205,16 @@ $('input[type=radio]').change(function(){
 	}else if(this.name == "year"){
 		year_select = this.value;
 		set_data();
+	}else if(this.name == "yemp"){
+		y_denom = sel_indexes[this.value];
+		yData_label_denominator = sel_labels[this.value];
+	}else if(this.name == "xemp"){
+		x_denom = sel_indexes[this.value];
+		xData_label_denominator = sel_labels[this.value];
 	}
 
-	xData = get_ratio_values(xind, denominator);
-	yData = get_ratio_values(yind, denominator);
+	xData = get_ratio_values(xind, x_denom);
+	yData = get_ratio_values(yind, y_denom);
 
 
 	//Resize range for plotting new values and each axis
@@ -291,13 +301,12 @@ function get_ratio_values(nindex, dindex){
     var ratio_arr = [];
     for (var i = 0; i < alldata.length; i++){
 		if(alldata[i][nindex] == 0){
-		    console.log("Warning: zero value in ratio  - replacing with .01");
-		    alldata[i][nindex] = .01;
+		    ratio_arr.push([0, alldata[i][0]]);
 		} else if(alldata[i][dindex] == 0){
-		    console.log("Warning: zero value in ratio - replacing with .01");
-		    alldata[i][dindex] = .01;
-		}
+		    ratio_arr.push([0, alldata[i][0]]);
+		}else{
 		ratio_arr.push([(alldata[i][nindex] / alldata[i][dindex]), alldata[i][0]]);
+		}
     }
     return ratio_arr;
 }
