@@ -1,132 +1,180 @@
 //Design variables
 
 //Width and height
-var w = 500;
-var h = 200;
+var w = 850;
+var h = 500;
 var padding = 30;
 
 //Size of datapoints
 var radius_min = 5;
-var radius_max = 10;
+var radius_max = 25;
 
 //See color_by_department to change color for each major/department
 var color = d3.scale.category20();
 
-//Test datasets
-//TODO: have this loaded from outside static files?
-//TODO: does not like zero values
+// Selection groups, which identify their columns
+var sel_indexes = [7, 8, 9, 20, 21, 22, 32, 31]
+var sel_labels = [
+					"Undergrad Majors",
+					"Grad Majors",
+					"Total Majors",
+					"Full Time Undergrad",
+					"Full Time Grad",
+					"Full Time Total",
+					"Research Funding",
+					"Space Available"
+			];
 
-var FTE = [
-	   [15, "Afric Std"], 
-	   [30, "Dance"], 
-	   [40, "Amer Std"],
-	   [35, "CMSC"]
-	   ];
+// Title, Color, Shape, in order of 0 to 4 as majors are labelled
+var departments = [
+["CAHSS", 1, "circle"],
+["CNMS", 2, "circle"],
+["COEIT", 3, "circle"],
+["Erickson", 4, "circle"],
+["Sch of Soc Work", 5, "circle"]
+];
 
+// Initialize all arrays
+var alldata = new Array();
 
-var FT_FAC = [
-	      [2, "Afric Std"],
-	      [9, "Dance"],
-	      [12, "Amer Std"],
-	      [4, "CMSC"]
-	      ];
+var x_median = 0;
+var y_median = 0;
 
-var PT_FAC = [
-	      [4, "Afric Std"],
-	      [2, "Dance"],
-	      [9, "Amer Std"],
-	      [10, "CMSC"]
-	      ];
+//Index of the denominator
+var denominator = 10; 
 
-//Data variables - these need to match with what is checked by default in the forms
-var xData_numerator = FT_FAC;
-var xData_denominator = FT_FAC;
-var yData_numerator = FTE;
-var yData_denominator = FTE;
+// Initial Indexes and variables
+var xind = 5;
+var yind = 2;
+var year_select = "2013";
+var student_ind = 9;
 
-var xData = get_ratio_values(xData_numerator, xData_denominator);
-var yData = get_ratio_values(yData_numerator, yData_denominator);
-
-var xData_label_numerator = "Full Time Faculty";
-var xData_label_denominator = "Full Time Faculty";
-var yData_label_numerator = "Full Time Equivalent Student";
-var yData_label_denominator = "Full Time Equivalent Student";
-
-//Set Scales and Axis
-//TODO: get max of each dataset
-
-var xScale = d3.scale.linear()
-    //.domain([0, 100])
-    .domain([0, d3.max(get_values(xData))])
-    .range([padding, w - padding]);
-
-var yScale = d3.scale.linear()
-    //.domain([0, 100])
-    .domain([0, d3.max(get_values(yData))])
-    .range([h - padding, padding]);
-
-//Define X axis
-var xAxis = d3.svg.axis()
-    .scale(xScale)
-    .orient("bottom")
-    .ticks(5);  //Set rough # of ticks
-
-//Define Y axis
-var yAxis = d3.svg.axis()
-    .scale(yScale)
-    .orient("left")
-    .ticks(5);
-
-//Create SVG element
-
-var svg = d3.select("body")
-    .append("svg")
-    .attr("width", w)
-    .attr("height", h);
+var xScale = 0;
+var yScale = 0;
+var xData = new Array();
+var yData = new Array();
+var parsedData = new Array();
+var xData_label_numerator = '';
+var xData_label_denominator = '';
+var yData_label_numerator = '';
+var yData_label_denominator = '';
+var xAxis = 0;
+var yAxis = 0;
+var svg = 0;
+var min = 0;
+var max = 0;
+var event = window.event;
 
 //Create tooltip
-var tooltip = d3.select("body")
+tooltip = d3.select("body")
     .append("div")
     .style("position", "absolute")
     .style("z-index", "10")
     .style("visibility", "hidden");
     //    .text("a simple tooltip");
 
-//Push Data Elements
+//Load CSV, and set the data arrays
+d3.text("alldata.csv", function(unParsed)
+{	
+	parsedData = d3.csv.parseRows(unParsed);
+
+	set_data();
+
+xData = get_ratio_values(xind, denominator);
+yData = get_ratio_values(yind, denominator);
+
+xScale = d3.scale.linear()
+    //.domain([0, 100])
+    .domain([0, d3.max(xData, function(d){
+    	return d[0];
+    })])
+    .range([padding, w - padding]);
+
+yScale = d3.scale.linear()
+    //.domain([0, 100])
+    .domain([0, d3.max(yData, function(d){
+    	return d[0];
+    })])
+    .range([h - padding, padding]);
+
+  //Define X axis
+xAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient("bottom")
+    .ticks(5);  //Set rough # of ticks
+
+//Define Y axis
+yAxis = d3.svg.axis()
+    .scale(yScale)
+    .orient("left")
+    .ticks(5);
+
+//Create SVG element
+svg = d3.select("#scatter")
+    .append("svg")
+    .attr("width", w)
+    .attr("height", h);
+
+
+xData_label_numerator = sel_labels[xind];
+xData_label_denominator = "Full Time Faculty";
+yData_label_numerator = sel_labels[yind];
+yData_label_denominator = "Full Time Faculty";
 
 //Determine radius from x-axis values, map between radius_min and radius_max
-var min = d3.min(get_values(xData));
-var max = d3.max(get_values(xData));
+min = d3.min(get_values(student_ind));
+max = d3.max(get_values(student_ind));
 
+//Determine x and y medians
+x_median = d3.median(xData, function(d){
+		return d[0];
+	});
+y_median = d3.median(yData, function(d){
+		return d[0];
+	});
+
+// Draw Median Lines
+xMedian = svg.append("svg:line")
+    .attr("x1", xScale(x_median))
+    .attr("y1", 0)
+    .attr("x2", xScale(x_median))
+    .attr("y2", h)
+	.attr("class", "x-median")
+    .style("stroke", "rgb(6,120,155)");
+
+yMedian = svg.append("svg:line")
+    .attr("x1", 0)
+    .attr("y1", yScale(y_median))
+    .attr("x2", w)
+    .attr("y2", yScale(y_median))
+	.attr("class", "y-median")
+    .style("stroke", "rgb(6,120,155)");
+	
 //Bulid each datapoint
 svg.selectAll("circle")
     .data(xData)
     .enter()
     .append("circle")
     .style("stroke", "gray")
-    .style("fill", function(d){
-	    return color_by_department(d[1]);
+    .style("fill", function(d, i){
+	    return color_by_department(i);
 	})
-    .attr("cx", function(d) {
+    .attr("cx", function(d, i) {
 	    return xScale(d[0]);
 	})
     .attr("cy", function(d,i) {
 	    return yScale(yData[i][0]);
 	})
-    .attr("r", function(d){
-	    return scale_radius(d[0],min,max);
+    .attr("r", function(d, i){
+	    return scale_radius(i,min,max);
 	})
     .on("mouseover", function(d,i){
-	    tooltip.text(d[1] + "\n" + xData_label_numerator + "/" + xData_label_denominator +": " + (d[0]).toFixed(3) + "\n" + yData_label_numerator + "/" + yData_label_denominator + ": " + (yData[i][0]).toFixed(3));
+	    tooltip.text(d[1] + " || \n" + xData_label_numerator + "/" + xData_label_denominator +": " + (d[0]).toFixed(3) + "\n" + yData_label_numerator + "/" + yData_label_denominator + ": " + (yData[i][0]).toFixed(3));
 	    return tooltip.style("visibility", "visible");})
-    .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+    .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
     .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
 
 
-//Old tooltip    
-//    .append("svg:title")
-//    .text(function(d,i){ return d[1] + "\n" + xData_label + ": " + d[0] + "\n" + yData_label+ ": " + yData[i][0]});
-    
 //Create X axis
 svg.append("g")
     .attr("class", "x-axis")  //Assign "axis" class
@@ -139,65 +187,36 @@ svg.append("g")
     .attr("transform", "translate(" + padding + ",0)")
     .call(yAxis);
 
+});
 
-d3.selectAll("input").on("change", function change() {
-	
-	if(this.value === "fte_xaxis_numerator"){
-	    xData_numerator = FTE;
-	    xData_label_numerator = "Full Time Equivalent Student";
-	} else if(this.value === "fte_xaxis_denominator"){
-	    xData_denominator = FTE;
-	    xData_label_denominator = "Full Time Equivalent Student";
-	} else if (this.value === "ft_fac_xaxis_numerator"){
-	    xData_numerator = FT_FAC;
-	    xData_label_numerator = "Full Time Faculty";
-	} else if (this.value === "ft_fac_xaxis_denominator"){
-	    xData_denominator = FT_FAC;
-	    xData_label_denominator = "Full Time Faculty";
-	} else if (this.value === "pt_fac_xaxis_numerator"){
-	    xData_numerator = PT_FAC;
-	    xData_label_numerator = "Part Time Faculty";
-	}else if (this.value === "pt_fac_xaxis_denominator"){
-	    xData_denominator = PT_FAC;
-	    xData_label_denominator = "Part Time Faculty";
+//d3.selectAll("input").on("change", function change() {
+$('input[type=radio]').change(function(){
+
+	if(this.name == "yval"){
+		yind = sel_indexes[this.value];
+		yData_label_numerator = sel_labels[this.value];
+	}else if(this.name == "xval"){
+		xind = sel_indexes[this.value];
+		xData_label_numerator = sel_labels[this.value];
+	}else if(this.name == "year"){
+		year_select = this.value;
+		set_data();
 	}
-	else if (this.value === "fte_yaxis_numerator"){
-	    yData_numerator = FTE;
-	    yData_label_numerator = "Full Time Equivalent Student";
-	}else if (this.value === "fte_yaxis_denominator"){
-	    yData_denominator = FTE;
-	    yData_label_denominator = "Full Time Equivalent Student";
-	}
-	else if (this.value === "ft_fac_yaxis_numerator"){
-	    yData_numerator = FT_FAC;
-	    yData_label_numerator = "Full Time Faculty";
-	}else if (this.value === "ft_fac_yaxis_denominator"){
-	    yData_denominator = FT_FAC;
-	    yData_label_denominator = "Full Time Faculty";
-	}    
-	else if (this.value === "pt_fac_yaxis_numerator"){
-	    yData_numerator = PT_FAC;
-	    yData_label_numerator = "Part Time Faculty";
-	}else if (this.value === "pt_fac_yaxis_denominator"){
-	    yData_denominator = PT_FAC;
-	    yData_label_denominator = "Part Time Faculty";
-	}
-	
-	//Now that the ratios have changed, set new xData and yData
-	xData = get_ratio_values(xData_numerator, xData_denominator);
-	yData = get_ratio_values(yData_numerator, yData_denominator);
+
+	xData = get_ratio_values(xind, denominator);
+	yData = get_ratio_values(yind, denominator);
 
 
 	//Resize range for plotting new values and each axis
-	xScale.domain([0, d3.max(get_values(xData))])
+	xScale.domain([0, d3.max(xData, function(d){
+		return d[0];
+	})])
 	    .range([padding, w - padding]);
 	
-	yScale.domain([0, d3.max(get_values(yData))])
+	yScale.domain([0, d3.max(yData, function(d){
+		return d[0];
+	})])
 	    .range([h - padding, padding]);
-
-	//get min and max of new dataset to draw the radius
-	var min = d3.min(get_values(xData));
-	var max = d3.max(get_values(xData));
 
 
 	var circles = svg.selectAll("circle")
@@ -210,8 +229,8 @@ d3.selectAll("input").on("change", function change() {
 	    .attr("cy", function(d,i) {
 		    return yScale(yData[i][0]);
 		})
-	    .attr("r", function(d){
-		    return scale_radius(d[0],min,max);
+	    .attr("r", function(d, i){
+		    return scale_radius(i,min,max);
 		});
 	
 	svg.select(".x-axis")
@@ -223,54 +242,91 @@ d3.selectAll("input").on("change", function change() {
 	    .transition()
 	    .duration(750)
 	    .call(yAxis);
+     
+	 //Determine x and y medians
+	x_median = d3.median(xData, function(d){
+			return d[0];
+		});
+	y_median = d3.median(yData, function(d){
+			return d[0];
+		});
 
-    });
+	// Draw Median Lines
+	xMedian = svg.select(".x-median")
+		.transition()
+		.duration(500)
+		.attr("x1", xScale(x_median))
+		.attr("y1", 0)
+		.attr("x2", xScale(x_median))
+		.attr("y2", h)
+		.attr("class", "x-median")
+		.style("stroke", "rgb(6,120,155)");
+
+	yMedian = svg.select(".y-median")
+		.transition()
+		.duration(500)
+		.attr("x1", 0)
+		.attr("y1", yScale(y_median))
+		.attr("x2", w)
+		.attr("y2", yScale(y_median))
+		.attr("class", "y-median")
+		.style("stroke", "rgb(6,120,155)");
+
+	});
 
 //////
 // Helper Functions
 //////
 
-function scale_radius(val, min, max){
+function scale_radius(valindex, min, max){
     if(min == max){
 	console.log("Warning: scaling radius with min value == max value, setting max = min * 2");
 	max = min * 2;
     }
-    return radius_min + (radius_max - radius_min) * (val - min)/(max - min);
+    return radius_min + (radius_max - radius_min) * ((alldata[valindex][student_ind]) - min)/(max - min);
 }
 
-function get_ratio_values(arr1, arr2){
-    ratio_arr = [];
-    for (var i = 0; i < arr1.length; i++){
-	if(arr1[i][0] == 0){
-	    console.log("Warning: zero value in ratio  - replacing with .01");
-	    arr1[i][0] = .01;
-	} else if(arr2[i][0] == 0){
-	    console.log("Warning: zero value in ratio - replacing with .01");
-	    arr2[i][0] = .01;
-	}
-	ratio_arr.push([(arr1[i][0] / arr2[i][0]), arr1[i][1]]);	
+// Modified to use universal array
+function get_ratio_values(nindex, dindex){
+    var ratio_arr = [];
+    for (var i = 0; i < alldata.length; i++){
+		if(alldata[i][nindex] == 0){
+		    console.log("Warning: zero value in ratio  - replacing with .01");
+		    alldata[i][nindex] = .01;
+		} else if(alldata[i][dindex] == 0){
+		    console.log("Warning: zero value in ratio - replacing with .01");
+		    alldata[i][dindex] = .01;
+		}
+		ratio_arr.push([(alldata[i][nindex] / alldata[i][dindex]), alldata[i][0]]);
     }
-    console.log(ratio_arr);
     return ratio_arr;
 }
 
-function get_values(arr){
+function get_values(valindex){
     var val_array = [];
-    for (var i = 0; i < arr.length; i++) {
-	val_array.push(arr[i][0]);
+    for (var i = 0; i < alldata.length; i++) {
+		val_array.push(alldata[i][valindex]);
     }      
     return val_array;
 }
 
+// Brandon - Modified to hit the lookup table instead of the value
 function color_by_department(department){
+			return color(departments[alldata[department][2]]);
+}
 
-    if(department === "Afric Std"){
-	return color(0);
-    } else if (department === "Dance"){
-	return color(1);
-    } else if (department === "Amer Std"){
-	return color(2);
-    } else if (department === "CMSC"){
-	return color(3);
-    }
+// Use the global select date to reset the data
+function set_data(){
+	alldata = [];
+	for(var i = 0; i < parsedData.length; i++){
+		if(parsedData[i][1] == year_select){
+			alldata.push(parsedData[i]);
+		}
+	}
+
+	for(var i = 0; i < alldata.length; i++){
+		for(var j = 1; j < alldata[i].length; j++){
+			alldata[i][j] = parseFloat(alldata[i][j]);
+		}
+	}
 }

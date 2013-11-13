@@ -2,8 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>FTES per FT Faculty by Majors per FT Faculty - Fall 2012</title>
+    <title>Faculty based comparison data</title>
     <script type="text/javascript" src="d3/d3.v3.min.js"></script>
+	<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/bootstrap-theme.min.css" rel="stylesheet">
+	
     <style type="text/css">
     
       body {font-family:Sans-serf;}
@@ -34,40 +39,131 @@
       font-family: sans-serif;
       font-size: 11px;
       }
-
+	
+	#main{
+		margin:0 auto;
+		float:none;
+	 }
       </style>
     </head>
   <body>
-<h2>Faculty Ratios</h2>
-
-Y-Axis Numerator
-<form>
-  <label><input type="radio" name="mode" value="fte_yaxis_numerator" checked> Students by Major</label>
-  <label><input type="radio" name="mode" value="ft_fac_yaxis_numerator" > Full time Faculty by Department</label>
-  <label><input type="radio" name="mode" value="pt_fac_yaxis_numerator"> Part time Faculty by Department</label>
-</form>
-<br>
-Y-Axis Denominator
-<form>
-  <label><input type="radio" name="mode" value="fte_yaxis_denominator" checked> Students by Major</label>
-  <label><input type="radio" name="mode" value="ft_fac_yaxis_denominator" > Full time Faculty by Department</label>
-  <label><input type="radio" name="mode" value="pt_fac_yaxis_denominator"> Part time Faculty by Department</label>
-</form>
-<br>
-X-Axis Numerator
-<form>
-  <label><input type="radio" name="mode" value="fte_xaxis_numerator" > Students by Major</label>
-  <label><input type="radio" name="mode" value="ft_fac_xaxis_numerator" checked> Full time Faculty by Department</label>
-  <label><input type="radio" name="mode" value="pt_fac_xaxis_numerator"> Part time Faculty by Department</label>
-</form>
-<br>
-X-Axis Denominator
-<form>
-  <label><input type="radio" name="mode" value="fte_xaxis_denominator" > Students by Major</label>
-  <label><input type="radio" name="mode" value="ft_fac_xaxis_denominator" checked> Full time Faculty by Department</label>
-  <label><input type="radio" name="mode" value="pt_fac_xaxis_denominator"> Part time Faculty by Department</label>
-</form>
-<br>
+<div id="main" class="container">
+<div class="row">
+  <div class="col-md-12">
+  <nav class="navbar navbar-default" role="navigation">
+  <div class="navbar-header">
+    <a class="navbar-brand" href="#">UMBC Department Faculty Ratios</a>
+  </div>
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <ul class="nav navbar-nav navbar-right">
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Group Members <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li>Faren Grant</li>
+		  <li>Chelsea Johnson</li>
+		  <li>Ryan McGrath</li>
+		  <li>Brandon Stryker</li>
+		  <li>Steve Zubrowski</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  </nav>
+  </div>
+</div>
+<div class="jumbotron">
+<div class="row">
+	<div class="col-md-2 text-center" id="yaxes">
+	<form>
+	  <div class="btn-group-vertical" data-toggle="buttons">
+	  <span>Y - Value</span></br>
+	  <label class="btn btn-default">
+		<input type="radio" name="yval" id="yval0" value="0">Undergrad Majors
+	  </label>
+	  	  <label class="btn btn-default">
+		<input type="radio" name="yval" id="yval1" value="1">Grad Majors
+	  </label>
+	  	  <label class="btn btn-default active">
+		<input type="radio" name="yval" id="yval2" value="2">Total Majors
+	  </label>
+	  	  <label class="btn btn-default">
+		<input type="radio" name="yval" id="yval3" value="3">Full Time Undergrad
+	  </label>
+	  	  <label class="btn btn-default">
+		<input type="radio" name="yval" id="yval4" value="4">Full Time Grad
+	  </label>
+	  	  <label class="btn btn-default">
+		<input type="radio" name="yval" id="yval5" value="5">Full Time Total
+	  </label>
+	  	  <label class="btn btn-default">
+		<input type="radio" name="yval" id="yval6" value="6">Research Funding
+	  </label>
+	  	  <label class="btn btn-default">
+		<input type="radio" name="yval" id="yval7" value="7">Space Available
+	  </label>
+	</div>
+	</form>
+  </div>
+  <div class="col-md-8 text-center" id="scatter"></div>
+  <div class="col-md-2 text-center" id="years">
+	<form>
+  	  <div class="btn-group-vertical" data-toggle="buttons">
+	  <span>Year</span></br>
+	  <label class="btn btn-default">
+		<input type="radio" name="year" id="year2009" value="2009"> 2009
+	  </label>
+	  <label class="btn btn-default">
+		<input type="radio" name="year" id="year2010" value="2010"> 2010
+	  </label>
+	  <label class="btn btn-default">
+		<input type="radio" name="year" id="year2011" value="2011"> 2011
+	  </label>
+	  <label class="btn btn-default">
+		<input type="radio" name="year" id="year2012" value="2012"> 2012
+	  </label>
+	  <label class="btn btn-default active">
+		<input type="radio" name="year" id="year2013" value="2013"> 2013
+	  </label>
+	 </div>
+	 </form>
+	</div>
+ </form>
+</div>
+<div class="row">
+  <div class="col-md-12 text-center">
+  <form>
+  <div class="btn-group" data-toggle="buttons">
+	  <span>X - Value</span></br>
+	  <label class="btn btn-default">
+		<input type="radio" name="xval" id="xval0" value="0">Undergrad Majors
+	  </label>
+	  	  <label class="btn btn-default">
+		<input type="radio" name="xval" id="xval1" value="1">Grad Majors
+	  </label>
+	  	  <label class="btn btn-default">
+		<input type="radio" name="xval" id="xval2" value="2" checked>Total Majors
+	  </label>
+	  	  <label class="btn btn-default">
+		<input type="radio" name="xval" id="xval3" value="3">Full Time Undergrad
+	  </label>
+	  	  <label class="btn btn-default">
+		<input type="radio" name="xval" id="xval4" value="4">Full Time Grad
+	  </label>
+	  	  <label class="btn btn-default active">
+		<input type="radio" name="xval" id="xval5" value="5">Full Time Total
+	  </label>
+	  	  <label class="btn btn-default">
+		<input type="radio" name="xval" id="xval6" value="6">Research Funding
+	  </label>
+	  	  <label class="btn btn-default">
+		<input type="radio" name="xval" id="xval7" value="7">Space Available
+	  </label>
+	</div>
+   </form>
+   </div>
+</div>
+</div>
 
 
     <script type="text/javascript" src="visualization.js"></script>
