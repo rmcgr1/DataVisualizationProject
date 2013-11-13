@@ -44,8 +44,8 @@ var y_median = 0;
 var denominator = 10; 
 
 // Initial Indexes and variables
-var xind = 5;
-var yind = 2;
+var xind = 22;
+var yind = 9;
 var year_select = "2013";
 var student_ind = 9;
 
