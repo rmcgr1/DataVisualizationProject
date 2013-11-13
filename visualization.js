@@ -9,7 +9,6 @@ var padding = 30;
 var radius_min = 5;
 var radius_max = 25;
 
-//See color_by_department to change color for each major/department
 var color = d3.scale.category20();
 
 // Selection groups, which identify their columns
@@ -36,6 +35,38 @@ var departments = [
 ["Erickson", 4, "circle"],
 ["Sch of Soc Work", 5, "circle"]
 ];
+
+// Quick Generate a Legend
+legend = d3.select("#legend")
+    .append("svg")
+    .attr("width", 100)
+    .attr("height", 115);
+	
+legend.selectAll("circle")
+    .data(departments)
+    .enter()
+    .append("circle")
+    .style("stroke", "gray")
+    .style("fill", function(d, i){
+	    return color(departments[i][1]);
+	})
+    .attr("cx", "12px")
+    .attr("cy", function(d,i) {
+	    return ((i+1)*20)+2;
+	})
+    .attr("r", "10px");
+
+legend.selectAll("text")
+        .data(departments)
+		.enter()
+        .append("text")
+		.attr("dx", "26px")
+		.attr("dy", function(d,i) {
+			return ((i+1)*20)+6;
+		})
+        .text(function(d, i){
+			return d[0];
+		});
 
 // Initialize all arrays
 var alldata = new Array();
@@ -173,7 +204,7 @@ svg.selectAll("circle")
 	    return scale_radius(i,min,max);
 	})
     .on("mouseover", function(d,i){
-	    tooltip.text(d[1] + " || \n" + xData_label_numerator + "/" + xData_label_denominator +": " + (d[0]).toFixed(3) + "\n" + yData_label_numerator + "/" + yData_label_denominator + ": " + (yData[i][0]).toFixed(3));
+	    tooltip.text(alldata[i][0] + " || \n" + xData_label_numerator +": " + (alldata[i][xind]).toFixed(1) +  "/" + xData_label_denominator +": " + (alldata[i][x_denom]).toFixed(1) + "\n" + yData_label_numerator +": " + (alldata[i][yind]).toFixed(1) +   "/" + yData_label_denominator + ": " + (alldata[i][y_denom]).toFixed(1));
 	    return tooltip.style("visibility", "visible");})
     .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
     .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
@@ -321,7 +352,7 @@ function get_values(valindex){
 
 // Brandon - Modified to hit the lookup table instead of the value
 function color_by_department(department){
-			return color(departments[alldata[department][2]]);
+			return color(departments[alldata[department][2]][1]);
 }
 
 // Use the global select date to reset the data
