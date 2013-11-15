@@ -1,0 +1,12 @@
+New Goals:
+
+    Clearly label the X and Y axes with which ratios are being represented
+    Keep the denominator the same for both axes (have only one selection area)
+    Align the option to select year and option to select denominator on same side
+    Represent the various schools of study by shapes instead of color
+    Remove the 'Space Available' numerator option
+    Replace 'Research Funding' to 'Average Faculty Salary' and range values from $75k-$150k
+    Calculate the line for mean, in addition to median, and display both. Color each one and make a key to distinguish them.
+    Double check the data to make sure it is accurate. Some things did not display how they should (example, comp sci appears to be very small)
+    Gradation colors based on T/TT faculty to non T/TT faculty
+	(If possible) allow for animation of data over time

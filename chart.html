@@ -4,11 +4,11 @@
     <meta charset="utf-8">
     <title>Faculty based comparison data</title>
     <script type="text/javascript" src="d3/d3.v3.min.js"></script>
-	<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
-	<script type="text/javascript" src="js/bootstrap.min.js"></script>
-	<link href="css/bootstrap.min.css" rel="stylesheet">
-	<link href="css/bootstrap-theme.min.css" rel="stylesheet">
-	
+        <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="js/bootstrap.min.js"></script>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+        
     <style type="text/css">
 
       .x-axis path,
@@ -34,11 +34,16 @@
       font-family: sans-serif;
       font-size: 11px;
       }
-	
-	#main{
-		margin:0 auto;
-		float:none;
-	 }
+      
+	  .point {
+		fill: steelblue;
+		stroke: #000;
+	  }
+	  
+        #main{
+                margin:0 auto;
+                float:none;
+         }
       </style>
     </head>
   <body>
@@ -56,10 +61,10 @@
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Group Members <b class="caret"></b></a>
         <ul class="dropdown-menu">
           <li>Faren Grant</li>
-		  <li>Chelsea Johnson</li>
-		  <li>Ryan McGrath</li>
-		  <li>Brandon Stryker</li>
-		  <li>Steve Zubrowski</li>
+                 <li>Chelsea Johnson</li>
+                 <li>Ryan McGrath</li>
+                 <li>Brandon Stryker</li>
+                 <li>Steve Zubrowski</li>
         </ul>
       </li>
     </ul>
@@ -69,74 +74,75 @@
 </div>
 <div class="jumbotron">
 <div class="row">
-	<div class="col-md-2 text-center" id="yaxes">
-	<form>
-	  <div class="btn-group-vertical" data-toggle="buttons">
-	  <label class="btn btn-default">
-		<input type="radio" name="yval" id="yval0" value="0">Undergrad Majors
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="yval" id="yval1" value="1">Grad Majors
-	  </label>
-	  	  <label class="btn btn-default active">
-		<input type="radio" name="yval" id="yval2" value="2">Total Majors
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="yval" id="yval3" value="3">Full Time Undergrad
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="yval" id="yval4" value="4">Full Time Grad
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="yval" id="yval5" value="5">Full Time Total
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="yval" id="yval6" value="6">Research Funding
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="yval" id="yval7" value="7">Space Available
-	  </label>
-	</div>
-	</form>
-	<h5>Employee Type:<h5><br />
-		<form>
-	  <div class="btn-group-vertical" data-toggle="buttons">
-	  <label class="btn btn-default active">
-		<input type="radio" name="yemp" id="yemp0" value="8">Full Time
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="yemp" id="yemp1" value="9">Part Time
-	  </label>
-	  <label class="btn btn-default">
-		<input type="radio" name="yemp" id="yemp2" value="10">T/TT FTE
-	  </label>
-	</div>
-	</form>
-	<div id="legend"></div>
+        <div class="col-md-2 text-center" id="yaxes">
+        <form>
+         <div class="btn-group-vertical" data-toggle="buttons">
+         <label class="btn btn-default">
+                <input type="radio" name="yval" id="yval0" value="0">Undergrad Majors
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="yval" id="yval1" value="1">Grad Majors
+         </label>
+                  <label class="btn btn-default active">
+                <input type="radio" name="yval" id="yval2" value="2">Total Majors
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="yval" id="yval3" value="3">Full Time Undergrad
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="yval" id="yval4" value="4">Full Time Grad
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="yval" id="yval5" value="5">Full Time Total
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="yval" id="yval6" value="6">Research Funding
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="yval" id="yval7" value="7">Space Available
+         </label>
+        </div>
+        </form>
+        <h5><br />
+        <div id="legend"></div><h5>
   </div>
   <div class="col-md-8 text-center" id="scatter"></div>
   <div class="col-md-2 text-center" id="years">
-	<form>
-  	  <div class="btn-group-vertical" data-toggle="buttons">
-	  <span>Year</span></br>
-	  <label class="btn btn-default">
-		<input type="radio" name="year" id="year2009" value="2009"> 2009
-	  </label>
-	  <label class="btn btn-default">
-		<input type="radio" name="year" id="year2010" value="2010"> 2010
-	  </label>
-	  <label class="btn btn-default">
-		<input type="radio" name="year" id="year2011" value="2011"> 2011
-	  </label>
-	  <label class="btn btn-default">
-		<input type="radio" name="year" id="year2012" value="2012"> 2012
-	  </label>
-	  <label class="btn btn-default active">
-		<input type="radio" name="year" id="year2013" value="2013"> 2013
-	  </label>
-	 </div>
-	 </form>
-	</div>
+        <form>
+           <div class="btn-group-vertical" data-toggle="buttons">
+         <span>Year</span></br>
+         <label class="btn btn-default">
+                <input type="radio" name="year" id="year2009" value="2009"> 2009
+         </label>
+         <label class="btn btn-default">
+                <input type="radio" name="year" id="year2010" value="2010"> 2010
+         </label>
+         <label class="btn btn-default">
+                <input type="radio" name="year" id="year2011" value="2011"> 2011
+         </label>
+         <label class="btn btn-default">
+                <input type="radio" name="year" id="year2012" value="2012"> 2012
+         </label>
+         <label class="btn btn-default active">
+                <input type="radio" name="year" id="year2013" value="2013"> 2013
+         </label>
+         </div>
+         </form>
+        
+		<form>
+         <div class="btn-group-vertical" data-toggle="buttons">
+         <label class="btn btn-default active">
+                <input type="radio" name="xemp" id="xemp0" value="8">Full Time
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="xemp" id="xemp1" value="9">Part Time
+         </label>
+         <label class="btn btn-default">
+                <input type="radio" name="xemp" id="xemp2" value="10">T/TT FTE
+         </label>
+        </div>
+        </form>
+		</div>
  </form>
 </div>
 <div class="row">
@@ -144,46 +150,32 @@
   <form>
   <div class="btn-group" data-toggle="buttons">
 </br>
-	  <label class="btn btn-default">
-		<input type="radio" name="xval" id="xval0" value="0">Undergrad Majors
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="xval" id="xval1" value="1">Grad Majors
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="xval" id="xval2" value="2">Total Majors
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="xval" id="xval3" value="3">Full Time Undergrad
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="xval" id="xval4" value="4">Full Time Grad
-	  </label>
-	  	  <label class="btn btn-default active">
-		<input type="radio" name="xval" id="xval5" value="5">Full Time Total
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="xval" id="xval6" value="6">Research Funding
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="xval" id="xval7" value="7">Space Available
-	  </label>
-	</div>
+         <label class="btn btn-default">
+                <input type="radio" name="xval" id="xval0" value="0">Undergrad Majors
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="xval" id="xval1" value="1">Grad Majors
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="xval" id="xval2" value="2">Total Majors
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="xval" id="xval3" value="3">Full Time Undergrad
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="xval" id="xval4" value="4">Full Time Grad
+         </label>
+                  <label class="btn btn-default active">
+                <input type="radio" name="xval" id="xval5" value="5">Full Time Total
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="xval" id="xval6" value="6">Research Funding
+         </label>
+                  <label class="btn btn-default">
+                <input type="radio" name="xval" id="xval7" value="7">Space Available
+         </label>
+        </div>
    </form>
- <h5>Employee Type:</h5>
-		<form>
-	  <div class="btn-group" data-toggle="buttons">
-	  <label class="btn btn-default active">
-		<input type="radio" name="xemp" id="xemp0" value="8">Full Time
-	  </label>
-	  	  <label class="btn btn-default">
-		<input type="radio" name="xemp" id="xemp1" value="9">Part Time
-	  </label>
-	  <label class="btn btn-default">
-		<input type="radio" name="xemp" id="xemp2" value="10">T/TT FTE
-	  </label>
-	</div>
-	</form>
    </div>
 </div>
 </div>
