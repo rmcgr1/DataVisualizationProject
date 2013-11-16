@@ -39,7 +39,20 @@
 		fill: steelblue;
 		stroke: #000;
 	  }
-	  
+	  div.tooltip {   
+		position: absolute;           
+		text-align: left;           
+		width: 212px;                  
+		height: 100px;                 
+		padding: 2px;             
+		font: 12px sans-serif;        
+		background: #CCCCCC;
+		border-style: solid;
+		border-width: 1px;
+		border-color: black;
+		border-radius: 8px;           
+		pointer-events: none;         
+	}
         #main{
                 margin:0 auto;
                 float:none;
@@ -96,10 +109,7 @@
                 <input type="radio" name="yval" id="yval5" value="5">Full Time Total
          </label>
                   <label class="btn btn-default">
-                <input type="radio" name="yval" id="yval6" value="6">Research Funding
-         </label>
-                  <label class="btn btn-default">
-                <input type="radio" name="yval" id="yval7" value="7">Space Available
+                <input type="radio" name="yval" id="yval6" value="6">Average Salary
          </label>
         </div>
         </form>
@@ -132,13 +142,13 @@
 		<form>
          <div class="btn-group-vertical" data-toggle="buttons">
          <label class="btn btn-default active">
-                <input type="radio" name="xemp" id="xemp0" value="8">Full Time
+                <input type="radio" name="emp" id="xemp0" value="8">Full Time
          </label>
                   <label class="btn btn-default">
-                <input type="radio" name="xemp" id="xemp1" value="9">Part Time
+                <input type="radio" name="emp" id="xemp1" value="9">Part Time
          </label>
          <label class="btn btn-default">
-                <input type="radio" name="xemp" id="xemp2" value="10">T/TT FTE
+                <input type="radio" name="emp" id="xemp2" value="10">T/TT FTE
          </label>
         </div>
         </form>
@@ -169,10 +179,7 @@
                 <input type="radio" name="xval" id="xval5" value="5">Full Time Total
          </label>
                   <label class="btn btn-default">
-                <input type="radio" name="xval" id="xval6" value="6">Research Funding
-         </label>
-                  <label class="btn btn-default">
-                <input type="radio" name="xval" id="xval7" value="7">Space Available
+                <input type="radio" name="xval" id="xval6" value="6">Average Salary
          </label>
         </div>
    </form>

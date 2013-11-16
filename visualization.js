@@ -1,7 +1,7 @@
 //Design variables
 
 //Width and height
-var w = 850;
+var w = 750;
 var h = 500;
 var padding = 30;
 
@@ -12,7 +12,7 @@ var radius_max = 700;
 var color = d3.scale.category20();
 
 // Selection groups, which identify their columns
-var sel_indexes = [7, 8, 9, 20, 21, 22, 32, 31, 10, 11, 15]
+var sel_indexes = [7, 8, 9, 20, 21, 22, 31, '',10, 11, 15]
 var sel_labels = [
                                         "Undergrad Majors",
                                         "Grad Majors",
@@ -77,8 +77,7 @@ var x_mean = 0;
 var y_mean = 0;
 
 //Index of the denominator
-var x_denom = 10;
-var y_denom = 10;
+var denom = 10;
 
 // Initial Indexes and variables
 var xind = 22;
@@ -94,7 +93,6 @@ var yData = new Array();
 var parsedData = new Array();
 var xData_label_numerator = '';
 var xData_label_denominator = '';
-var yData_label_numerator = '';
 var yData_label_denominator = '';
 var xAxis = 0;
 var yAxis = 0;
@@ -104,11 +102,11 @@ var max = 0;
 var event = window.event;
 
 //Create tooltip
-tooltip = d3.select("body")
-    .append("div")
+tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
     .style("position", "absolute")
     .style("z-index", "10")
-    .style("visibility", "hidden");
+    .style("opacity", 0);
     // .text("a simple tooltip");
 
 //Load CSV, and set the data arrays
@@ -124,8 +122,8 @@ d3.text("alldata.csv", function(unParsed)
 		
         set_data();
 
-xData = get_ratio_values(xind, x_denom);
-yData = get_ratio_values(yind, y_denom);
+xData = get_ratio_values(xind, denom);
+yData = get_ratio_values(yind, denom);
 
 xScale = d3.scale.linear()
     //.domain([0, 100])
@@ -176,7 +174,14 @@ x_median = d3.median(xData, function(d){
 y_median = d3.median(yData, function(d){
                 return d[0];
         });
-
+x_mean = d3.mean(xData, function(d){
+                return d[0];
+        });
+y_mean = d3.mean(yData, function(d){
+                return d[0];
+        });
+		
+		
 // Draw Median Lines
 xMedian = svg.append("svg:line")
     .attr("x1", xScale(x_median))
@@ -193,7 +198,24 @@ yMedian = svg.append("svg:line")
     .attr("y2", yScale(y_median))
         .attr("class", "y-median")
     .style("stroke", "rgb(6,120,155)");
+	
+xMean = svg.append("svg:line")
+    .attr("x1", xScale(x_mean))
+    .attr("y1", 0)
+    .attr("x2", xScale(x_mean))
+    .attr("y2", h)
+        .attr("class", "x-mean")
+    .style("stroke", "rgb(120,50,50)");
 
+yMean = svg.append("svg:line")
+    .attr("x1", 0)
+    .attr("y1", yScale(y_mean))
+    .attr("x2", w)
+    .attr("y2", yScale(y_mean))
+        .attr("class", "y-mean")
+    .style("stroke", "rgb(120,50,50)");
+
+	
 svg.selectAll("point")
     .data(xData)
     .enter()
@@ -214,8 +236,13 @@ svg.selectAll("point")
 	})
     .style("stroke-width", ".5px")
     .on("mouseover", function(d,i){
-         tooltip.text(alldata[i][0] + " || \n" + xData_label_numerator +": " + (alldata[i][xind]).toFixed(1) + "/" + xData_label_denominator +": " + (alldata[i][x_denom]).toFixed(1) + "\n" + yData_label_numerator +": " + (alldata[i][yind]).toFixed(1) + "/" + yData_label_denominator + ": " + (alldata[i][y_denom]).toFixed(1));
-         return tooltip.style("visibility", "visible");})
+		 tooltip.transition()
+				.duration(200)
+				.style("opacity", .9);
+         tooltip .html("<b>" + alldata[i][0] + " </b><br/>" 
+					 + xData_label_numerator +": " + (alldata[i][xind]).toFixed(1) + "/" + xData_label_denominator +": " + (alldata[i][denom]).toFixed(1) + "<br/><br/>" + yData_label_numerator +": " + (alldata[i][yind]).toFixed(1) + "/" + yData_label_denominator + ": " + (alldata[i][denom]).toFixed(1))
+					 .style("visibility", "visible");
+		 })
     .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
     .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
 
@@ -245,16 +272,14 @@ $('input[type=radio]').change(function(){
         }else if(this.name == "year"){
                 year_select = this.value;
                 set_data();
-        }else if(this.name == "yemp"){
-                y_denom = sel_indexes[this.value];
+        }else if(this.name == "emp"){
+                denom = sel_indexes[this.value];
                 yData_label_denominator = sel_labels[this.value];
-        }else if(this.name == "xemp"){
-                x_denom = sel_indexes[this.value];
                 xData_label_denominator = sel_labels[this.value];
         }
 
-        xData = get_ratio_values(xind, x_denom);
-        yData = get_ratio_values(yind, y_denom);
+        xData = get_ratio_values(xind, denom);
+        yData = get_ratio_values(yind, denom);
 
         //Resize range for plotting new values and each axis
         xScale.domain([0, d3.max(xData, function(d){
@@ -295,29 +320,54 @@ var point = svg.selectAll(".point")
         y_median = d3.median(yData, function(d){
                         return d[0];
                 });
-
+		x_mean = d3.mean(xData, function(d){
+                return d[0];
+        });
+		y_mean = d3.mean(yData, function(d){
+                return d[0];
+        });
+		
         // Draw Median Lines
         xMedian = svg.select(".x-median")
-                .transition()
-                .duration(500)
-                .attr("x1", xScale(x_median))
-                .attr("y1", 0)
-                .attr("x2", xScale(x_median))
-                .attr("y2", h)
-                .attr("class", "x-median")
-                .style("stroke", "rgb(6,120,155)");
+			.transition()
+			.duration(500)
+			.attr("x1", xScale(x_median))
+			.attr("y1", 0)
+			.attr("x2", xScale(x_median))
+			.attr("y2", h)
+			.attr("class", "x-median")
+			.style("stroke", "rgb(6,120,155)");
 
         yMedian = svg.select(".y-median")
-                .transition()
-                .duration(500)
-                .attr("x1", 0)
-                .attr("y1", yScale(y_median))
-                .attr("x2", w)
-                .attr("y2", yScale(y_median))
-                .attr("class", "y-median")
-                .style("stroke", "rgb(6,120,155)");
+			.transition()
+			.duration(500)
+			.attr("x1", 0)
+			.attr("y1", yScale(y_median))
+			.attr("x2", w)
+			.attr("y2", yScale(y_median))
+			.attr("class", "y-median")
+			.style("stroke", "rgb(6,120,155)");
 
-        });
+		xMean = svg.select(".x-mean")
+			.transition()
+			.duration(500)
+			.attr("x1", xScale(x_mean))
+			.attr("y1", 0)
+			.attr("x2", xScale(x_mean))
+			.attr("y2", h)
+			.attr("class", "x-mean")
+			.style("stroke", "rgb(120,50,50)");
+
+		yMean = svg.select(".y-mean")
+			.transition()
+			.duration(500)
+			.attr("x1", 0)
+			.attr("y1", yScale(y_mean))
+			.attr("x2", w)
+			.attr("y2", yScale(y_mean))
+			.attr("class", "y-mean")
+			.style("stroke", "rgb(120,50,50)");
+		});
 
 //////
 // Helper Functions
