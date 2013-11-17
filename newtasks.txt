@@ -3,3 +3,11 @@ New Goals:
     Clearly label the X and Y axes with which ratios are being represented
     Gradation colors based on T/TT faculty to non T/TT faculty
 	(If possible) allow for animation of data over time
+
+
+UI Fixes:
+
+First digit of salary is cut off on y axis
+Tooltip does not show if datapoint is on far right of scatterplot area
+Legend for mean, median lines
+Draw medan, media lines only until the axis

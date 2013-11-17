@@ -13,60 +13,98 @@ var color = d3.scale.category20();
 
 // Selection groups, which identify their columns
 var sel_indexes = [7, 8, 9, 20, 21, 22, 31, '',10, 11, 15]
-var sel_labels = [
-                                        "Undergrad Majors",
-                                        "Grad Majors",
-                                        "Total Majors",
-                                        "Full Time Undergrad",
-                                        "Full Time Grad",
-                                        "Full Time Total",
-                                        "Research Funding",
-                                        "Space Available",
-                                        "Full Time Employee",
-                                        "Part Time Employee",
-                                        "T/TT Employee"
-                        ];
+    var sel_labels = [
+		      "Undergrad Majors",
+		      "Grad Majors",
+		      "Total Majors",
+		      "Full Time Undergrad",
+		      "Full Time Grad",
+		      "Full Time Total",
+		      "Research Funding",
+		      "Space Available",
+		      "Full Time Employee",
+		      "Part Time Employee",
+		      "T/TT Employee"
+		      ];
 
 // Title, Color, Shape, in order of 0 to 4 as majors are labelled
 var departments = [
-["CAHSS", 1, "circle"],
-["CNMS", 2, "cross"],
-["COEIT", 3, "diamond"],
-["Erickson", 4, "square"],
-["Sch of Soc Work", 5, "triangle-up"]
-];
+		   ["CAHSS", 1, "circle"],
+		   ["CNMS", 2, "cross"],
+		   ["COEIT", 3, "diamond"],
+		   ["Erickson", 4, "square"],
+		   ["Sch of Soc Work", 5, "triangle-up"]
+		   ];
+
+var lines = [["Median", "rgb(6,120,155)", "x-median"], ["Mean", "rgb(120,50,50)","x-mean"]]
 
 // Quick Generate a Legend
 legend = d3.select("#legend")
     .append("svg")
     .attr("width", 100)
-    .attr("height", 115);
+    //    .attr("height", 115);
+    .attr("height", 160);
         
 legend.selectAll("point")
     .data(departments)
     .enter()
-	.append("svg:path")
-	.attr("class", "point")
-	.attr("transform", function(d,i) { 
-		return "translate(12," + ((i+1)*20+2) + ")"; }
+    .append("svg:path")
+    .attr("class", "point")
+    .attr("transform", function(d,i) { 
+	    return "translate(12," + ((i+1)*20+2) + ")"; }
 	)
     .attr("d", d3.svg.symbol().size(125).type(function(d) { return d[2]; }))
-	.style("fill", function(d, i){
-         return color(departments[i][1]);
+    .style("fill", function(d, i){
+	    return color(departments[i][1]);
 	})
     .style("stroke-width", ".5px");
 
 legend.selectAll("text")
-        .data(departments)
-                .enter()
-        .append("text")
-                .attr("dx", "26px")
-                .attr("dy", function(d,i) {
-                        return ((i+1)*20)+6;
-                })
-        .text(function(d, i){
-                        return d[0];
-                });
+    .data(departments)
+    .enter()
+    .append("text")
+    .attr("dx", "26px")
+    .attr("dy", function(d,i) {
+	    return ((i+1)*20)+6;
+	})
+    .text(function(d, i){
+	    return d[0];
+	});
+
+// Add legend for median, mean lines
+legend.selectAll("text-lines")
+    .data(lines)
+    .enter()
+    .append("text")
+    .attr("dx", "26px")
+    .attr("dy", function(d,i) {
+	    return (((departments.length)*20)+6) + ((i+1)*20)+6;
+	})
+    .text(function(d, i){
+	    console.log(d[0]);
+	    return d[0];
+	});
+
+legend.selectAll("point-lines")
+    .data(lines)
+    .enter()
+    .append("svg:line")
+    .attr("class", function(d){
+	    return d[2];
+	})
+    .attr("x1", "4px")
+    .attr("y1", function(d,i) { 
+	    return departments.length*20+2 + (i + 1) * 20 + 4; 
+	})
+    .attr("x2", "20px")
+    .attr("y2", function(d,i) { 
+	    return departments.length*20+2 + (i + 1) * 20 + 4; 
+	})
+    .style("stroke", function(d){
+	    return d[1];
+	});
+
+
 
 // Initialize all arrays
 var alldata = new Array();
@@ -107,175 +145,177 @@ tooltip = d3.select("body").append("div")
     .style("position", "absolute")
     .style("z-index", "10")
     .style("opacity", 0);
-    // .text("a simple tooltip");
+// .text("a simple tooltip");
 
 //Load CSV, and set the data arrays
 d3.text("alldata.csv", function(unParsed)
-{        
-        parsedData = d3.csv.parseRows(unParsed);
+	{        
+	    parsedData = d3.csv.parseRows(unParsed);
+	    
+	    for(var i = 0; i < parsedData.length; i++){
+		for(var j = 1; j < parsedData[i].length; j++){
+		    parsedData[i][j] = parseFloat(parsedData[i][j].replace(',', ''));
+		}
+	    }
+	    
+	    set_data();
+
+	    xData = get_ratio_values(xind, denom);
+	    yData = get_ratio_values(yind, denom);
+
+	    xScale = d3.scale.linear()
+		//.domain([0, 100])
+		.domain([0, d3.max(xData, function(d){
+				return d[0];
+			    })])
+		.range([padding, w - padding]);
+
+	    yScale = d3.scale.linear()
+		//.domain([0, 100])
+		.domain([0, d3.max(yData, function(d){
+				return d[0];
+			    })])
+		.range([h - padding, padding]);
+
+	    //Define X axis
+	    xAxis = d3.svg.axis()
+		.scale(xScale)
+		.orient("bottom")
+		.ticks(5); //Set rough # of ticks
+
+	    //Define Y axis
+	    yAxis = d3.svg.axis()
+		.scale(yScale)
+		.orient("left")
+		.ticks(5);
+
+	    //Create SVG element
+	    svg = d3.select("#scatter")
+		.append("svg")
+		.attr("width", w)
+		.attr("height", h);
+
+
+	    xData_label_numerator = "Full Time Enrollments";
+	    xData_label_denominator = "Full Time Faculty";
+	    yData_label_numerator = "Total Majors";
+	    yData_label_denominator = "Full Time Faculty";
+
+	    //Determine radius from x-axis values, map between radius_min and radius_max
+	    min = d3.min(get_values(student_ind));
+	    max = d3.max(get_values(student_ind));
+
+	    //Determine x and y medians
+	    x_median = d3.median(xData, function(d){
+		    return d[0];
+		});
+	    y_median = d3.median(yData, function(d){
+		    return d[0];
+		});
+	    x_mean = d3.mean(xData, function(d){
+		    return d[0];
+		});
+	    y_mean = d3.mean(yData, function(d){
+		    return d[0];
+		});
 		
-		for(var i = 0; i < parsedData.length; i++){
-			for(var j = 1; j < parsedData[i].length; j++){
-				parsedData[i][j] = parseFloat(parsedData[i][j].replace(',', ''));
-			}
-        }
 		
-        set_data();
+	    // Draw Median-Mean Lines
+	    // Blue
+	    xMedian = svg.append("svg:line")
+		.attr("x1", xScale(x_median))
+		.attr("y1", 0 + padding)
+		.attr("x2", xScale(x_median))
+		.attr("y2", h - padding)
+		.attr("class", "x-median")
+		.style("stroke", "rgb(6,120,155)");
 
-xData = get_ratio_values(xind, denom);
-yData = get_ratio_values(yind, denom);
-
-xScale = d3.scale.linear()
-    //.domain([0, 100])
-    .domain([0, d3.max(xData, function(d){
-            return d[0];
-    })])
-    .range([padding, w - padding]);
-
-yScale = d3.scale.linear()
-    //.domain([0, 100])
-    .domain([0, d3.max(yData, function(d){
-            return d[0];
-    })])
-    .range([h - padding, padding]);
-
-  //Define X axis
-xAxis = d3.svg.axis()
-    .scale(xScale)
-    .orient("bottom")
-    .ticks(5); //Set rough # of ticks
-
-//Define Y axis
-yAxis = d3.svg.axis()
-    .scale(yScale)
-    .orient("left")
-    .ticks(5);
-
-//Create SVG element
-svg = d3.select("#scatter")
-    .append("svg")
-    .attr("width", w)
-    .attr("height", h);
-
-
-xData_label_numerator = "Full Time Enrollments";
-xData_label_denominator = "Full Time Faculty";
-yData_label_numerator = "Total Majors";
-yData_label_denominator = "Full Time Faculty";
-
-//Determine radius from x-axis values, map between radius_min and radius_max
-min = d3.min(get_values(student_ind));
-max = d3.max(get_values(student_ind));
-
-//Determine x and y medians
-x_median = d3.median(xData, function(d){
-                return d[0];
-        });
-y_median = d3.median(yData, function(d){
-                return d[0];
-        });
-x_mean = d3.mean(xData, function(d){
-                return d[0];
-        });
-y_mean = d3.mean(yData, function(d){
-                return d[0];
-        });
-		
-		
-// Draw Median Lines
-xMedian = svg.append("svg:line")
-    .attr("x1", xScale(x_median))
-    .attr("y1", 0)
-    .attr("x2", xScale(x_median))
-    .attr("y2", h)
-        .attr("class", "x-median")
-    .style("stroke", "rgb(6,120,155)");
-
-yMedian = svg.append("svg:line")
-    .attr("x1", 0)
-    .attr("y1", yScale(y_median))
-    .attr("x2", w)
-    .attr("y2", yScale(y_median))
-        .attr("class", "y-median")
-    .style("stroke", "rgb(6,120,155)");
+	    yMedian = svg.append("svg:line")
+		.attr("x1", 0 + padding)
+		.attr("y1", yScale(y_median))
+		.attr("x2", w - padding)
+		.attr("y2", yScale(y_median))
+		.attr("class", "y-median")
+		.style("stroke", "rgb(6,120,155)");
 	
-xMean = svg.append("svg:line")
-    .attr("x1", xScale(x_mean))
-    .attr("y1", 0)
-    .attr("x2", xScale(x_mean))
-    .attr("y2", h)
-        .attr("class", "x-mean")
-    .style("stroke", "rgb(120,50,50)");
+	    // Brown
+	    xMean = svg.append("svg:line")
+		.attr("x1", xScale(x_mean))
+		.attr("y1", 0 + padding)
+		.attr("x2", xScale(x_mean))
+		.attr("y2", h - padding)
+		.attr("class", "x-mean")
+		.style("stroke", "rgb(120,50,50)");
 
-yMean = svg.append("svg:line")
-    .attr("x1", 0)
-    .attr("y1", yScale(y_mean))
-    .attr("x2", w)
-    .attr("y2", yScale(y_mean))
-        .attr("class", "y-mean")
-    .style("stroke", "rgb(120,50,50)");
+	    yMean = svg.append("svg:line")
+		.attr("x1", 0 + padding)
+		.attr("y1", yScale(y_mean))
+		.attr("x2", w - padding)
+		.attr("y2", yScale(y_mean))
+		.attr("class", "y-mean")
+		.style("stroke", "rgb(120,50,50)");
 
 	
-svg.selectAll("point")
-    .data(xData)
-    .enter()
-	.append("svg:path")
-	.attr("class", "point")
-	.attr("transform", function(d,i) {
-		x_val = xScale(d[0]);
-		y_val = yScale(yData[i][0]);
-		return "translate(" + x_val + "," + y_val + ")"; }
-	)
-    .attr("d", d3.svg.symbol().size(function(d, i){  return scale_radius(alldata[i][9],min,max); }).type(function(d, i){ 
-		var dep_ind = alldata[i][2];
-		return departments[dep_ind][2]; 
-	}))
-	.style("fill", function(d, i){
-		var dep_ind = alldata[i][2];
-        return color(departments[dep_ind][1]);
-	})
-    .style("stroke-width", ".5px")
-    .on("mouseover", function(d,i){
-		 tooltip.transition()
-				.duration(200)
-				.style("opacity", .9);
-         tooltip .html("<b>" + alldata[i][0] + " </b><br/>" 
-					 + xData_label_numerator +": " + (alldata[i][xind]).toFixed(1) + "/" + xData_label_denominator +": " + (alldata[i][denom]).toFixed(1) + "<br/><br/>" + yData_label_numerator +": " + (alldata[i][yind]).toFixed(1) + "/" + yData_label_denominator + ": " + (alldata[i][denom]).toFixed(1))
-					 .style("visibility", "visible");
-		 })
-    .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
-    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+	    svg.selectAll("point")
+		.data(xData)
+		.enter()
+		.append("svg:path")
+		.attr("class", "point")
+		.attr("transform", function(d,i) {
+			x_val = xScale(d[0]);
+			y_val = yScale(yData[i][0]);
+			return "translate(" + x_val + "," + y_val + ")"; }
+		    )
+		.attr("d", d3.svg.symbol().size(function(d, i){  return scale_radius(alldata[i][9],min,max); }).type(function(d, i){ 
+			    var dep_ind = alldata[i][2];
+			    return departments[dep_ind][2]; 
+			}))
+		.style("fill", function(d, i){
+			var dep_ind = alldata[i][2];
+			return color(departments[dep_ind][1]);
+		    })
+		.style("stroke-width", ".5px")
+		.on("mouseover", function(d,i){
+			tooltip.transition()
+			    .duration(200)
+			    .style("opacity", .9);
+			tooltip .html("<b>" + alldata[i][0] + " </b><br/>" 
+				      + xData_label_numerator +": " + (alldata[i][xind]).toFixed(1) + "/" + xData_label_denominator +": " + (alldata[i][denom]).toFixed(1) + "<br/><br/>" + yData_label_numerator +": " + (alldata[i][yind]).toFixed(1) + "/" + yData_label_denominator + ": " + (alldata[i][denom]).toFixed(1))
+			    .style("visibility", "visible");
+		    })
+		.on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+		.on("mouseout", function(){return tooltip.style("visibility", "hidden");});
 
-//Create X axis
-svg.append("g")
-    .attr("class", "x-axis") //Assign "axis" class
-    .attr("transform", "translate(0," + (h - padding) + ")")
-    .call(xAxis);
+	    //Create X axis
+	    svg.append("g")
+		.attr("class", "x-axis") //Assign "axis" class
+		.attr("transform", "translate(0," + (h - padding) + ")")
+		.call(xAxis);
 
-//Create Y axis
-svg.append("g")
-    .attr("class", "y-axis")
-    .attr("transform", "translate(" + padding + ",0)")
-    .call(yAxis);
+	    //Create Y axis
+	    svg.append("g")
+		.attr("class", "y-axis")
+		.attr("transform", "translate(" + padding + ",0)")
+		.call(yAxis);
 
-});
+	});
 
 //d3.selectAll("input").on("change", function change() {
 $('input[type=radio]').change(function(){
 
         if(this.name == "yval"){
-                yind = sel_indexes[this.value];
-                yData_label_numerator = sel_labels[this.value];
+	    yind = sel_indexes[this.value];
+	    yData_label_numerator = sel_labels[this.value];
         }else if(this.name == "xval"){
-                xind = sel_indexes[this.value];
-                xData_label_numerator = sel_labels[this.value];
+	    xind = sel_indexes[this.value];
+	    xData_label_numerator = sel_labels[this.value];
         }else if(this.name == "year"){
-                year_select = this.value;
-                set_data();
+	    year_select = this.value;
+	    set_data();
         }else if(this.name == "emp"){
-                denom = sel_indexes[this.value];
-                yData_label_denominator = sel_labels[this.value];
-                xData_label_denominator = sel_labels[this.value];
+	    denom = sel_indexes[this.value];
+	    yData_label_denominator = sel_labels[this.value];
+	    xData_label_denominator = sel_labels[this.value];
         }
 
         xData = get_ratio_values(xind, denom);
@@ -283,91 +323,91 @@ $('input[type=radio]').change(function(){
 
         //Resize range for plotting new values and each axis
         xScale.domain([0, d3.max(xData, function(d){
-                return d[0];
-        })])
-         .range([padding, w - padding]);
+			return d[0];
+		    })])
+	    .range([padding, w - padding]);
         
         yScale.domain([0, d3.max(yData, function(d){
-                return d[0];
-        })])
-         .range([h - padding, padding]);
+			return d[0];
+		    })])
+	    .range([h - padding, padding]);
 
 
-var point = svg.selectAll(".point")
-         .data(xData)
-		 .transition()
-		 .duration(500)
-		.attr("transform", function(d,i) {
-			x_val = xScale(d[0]);
-			y_val = yScale(yData[i][0]);
-			return "translate(" + x_val + "," + y_val + ")"; }
+	var point = svg.selectAll(".point")
+	    .data(xData)
+	    .transition()
+	    .duration(500)
+	    .attr("transform", function(d,i) {
+		    x_val = xScale(d[0]);
+		    y_val = yScale(yData[i][0]);
+		    return "translate(" + x_val + "," + y_val + ")"; }
 		);
         
         svg.select(".x-axis")
-         .transition()
-         .duration(750)
-         .call(xAxis);
+	    .transition()
+	    .duration(750)
+	    .call(xAxis);
 
         svg.select(".y-axis")
-         .transition()
-         .duration(750)
-         .call(yAxis);
+	    .transition()
+	    .duration(750)
+	    .call(yAxis);
      
-         //Determine x and y medians
+	//Determine x and y medians
         x_median = d3.median(xData, function(d){
-                        return d[0];
-                });
+		return d[0];
+	    });
         y_median = d3.median(yData, function(d){
-                        return d[0];
-                });
-		x_mean = d3.mean(xData, function(d){
+		return d[0];
+	    });
+	x_mean = d3.mean(xData, function(d){
                 return d[0];
-        });
-		y_mean = d3.mean(yData, function(d){
+	    });
+	y_mean = d3.mean(yData, function(d){
                 return d[0];
-        });
+	    });
 		
         // Draw Median Lines
         xMedian = svg.select(".x-median")
-			.transition()
-			.duration(500)
-			.attr("x1", xScale(x_median))
-			.attr("y1", 0)
-			.attr("x2", xScale(x_median))
-			.attr("y2", h)
-			.attr("class", "x-median")
-			.style("stroke", "rgb(6,120,155)");
+	    .transition()
+	    .duration(500)
+	    .attr("x1", xScale(x_median))
+	    .attr("y1", 0 + padding)
+	    .attr("x2", xScale(x_median))
+	    .attr("y2", h - padding)
+	    .attr("class", "x-median")
+	    .style("stroke", "rgb(6,120,155)");
 
         yMedian = svg.select(".y-median")
-			.transition()
-			.duration(500)
-			.attr("x1", 0)
-			.attr("y1", yScale(y_median))
-			.attr("x2", w)
-			.attr("y2", yScale(y_median))
-			.attr("class", "y-median")
-			.style("stroke", "rgb(6,120,155)");
+	    .transition()
+	    .duration(500)
+	    .attr("x1", 0 + padding)
+	    .attr("y1", yScale(y_median))
+	    .attr("x2", w - padding)
+	    .attr("y2", yScale(y_median))
+	    .attr("class", "y-median")
+	    .style("stroke", "rgb(6,120,155)");
 
-		xMean = svg.select(".x-mean")
-			.transition()
-			.duration(500)
-			.attr("x1", xScale(x_mean))
-			.attr("y1", 0)
-			.attr("x2", xScale(x_mean))
-			.attr("y2", h)
-			.attr("class", "x-mean")
-			.style("stroke", "rgb(120,50,50)");
+	xMean = svg.select(".x-mean")
+	    .transition()
+	    .duration(500)
+	    .attr("x1", xScale(x_mean))
+	    .attr("y1", 0 + padding)
+	    .attr("x2", xScale(x_mean))
+	    .attr("y2", h - padding)
+	    .attr("class", "x-mean")
+	    .style("stroke", "rgb(120,50,50)");
 
-		yMean = svg.select(".y-mean")
-			.transition()
-			.duration(500)
-			.attr("x1", 0)
-			.attr("y1", yScale(y_mean))
-			.attr("x2", w)
-			.attr("y2", yScale(y_mean))
-			.attr("class", "y-mean")
-			.style("stroke", "rgb(120,50,50)");
-		});
+	yMean = svg.select(".y-mean")
+	    .transition()
+	    .duration(500)
+	    .attr("x1", 0 + padding)
+	    .attr("y1", yScale(y_mean))
+	    .attr("x2", w - padding)
+	    .attr("y2", yScale(y_mean))
+	    .attr("class", "y-mean")
+	    .style("stroke", "rgb(120,50,50)");
+    });
 
 //////
 // Helper Functions
@@ -385,13 +425,13 @@ function scale_radius(valindex, min, max){
 function get_ratio_values(nindex, dindex){
     var ratio_arr = [];
     for (var i = 0; i < alldata.length; i++){
-                if(alldata[i][nindex] == 0){
-                 ratio_arr.push([0, alldata[i][0]]);
-                } else if(alldata[i][dindex] == 0){
-                 ratio_arr.push([0, alldata[i][0]]);
-                }else{
-                ratio_arr.push([(alldata[i][nindex] / alldata[i][dindex]), alldata[i][0]]);
-                }
+	if(alldata[i][nindex] == 0){
+	    ratio_arr.push([0, alldata[i][0]]);
+	} else if(alldata[i][dindex] == 0){
+	    ratio_arr.push([0, alldata[i][0]]);
+	}else{
+	    ratio_arr.push([(alldata[i][nindex] / alldata[i][dindex]), alldata[i][0]]);
+	}
     }
     return ratio_arr;
 }
@@ -399,22 +439,22 @@ function get_ratio_values(nindex, dindex){
 function get_values(valindex){
     var val_array = [];
     for (var i = 0; i < alldata.length; i++) {
-                val_array.push(parseFloat(alldata[i][valindex]));
+	val_array.push(parseFloat(alldata[i][valindex]));
     }
     return val_array;
 }
 
 // Brandon - Modified to hit the lookup table instead of the value
 function color_by_department(department){
-		return color(departments[alldata[department][2]][1]);
+    return color(departments[alldata[department][2]][1]);
 }
 
 // Use the global select date to reset the data
 function set_data(){
-        alldata = [];
-        for(var i = 0; i < parsedData.length; i++){
-                if(parsedData[i][1] == year_select){
-                        alldata.push(parsedData[i]);
-                }
-        }
+    alldata = [];
+    for(var i = 0; i < parsedData.length; i++){
+	if(parsedData[i][1] == year_select){
+	    alldata.push(parsedData[i]);
+	}
+    }
 }
