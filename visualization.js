@@ -38,8 +38,8 @@ var departments = [
 
 var lines = [["Median", "rgb(6,120,155)", "x-median"], ["Mean", "rgb(120,50,50)","x-mean"]]
 
-// Quick Generate a Legend
-legend = d3.select("#legend")
+    // Quick Generate a Legend
+    legend = d3.select("#legend")
     .append("svg")
     .attr("width", 100)
     //    .attr("height", 115);
@@ -138,6 +138,9 @@ var svg = 0;
 var min = 0;
 var max = 0;
 var event = window.event;
+
+//TT to non-TT ratio average
+var TT_average = 0;
 
 //Create tooltip
 tooltip = d3.select("body").append("div")
@@ -255,6 +258,8 @@ d3.text("alldata.csv", function(unParsed)
 		.attr("class", "y-mean")
 		.style("stroke", "rgb(120,50,50)");
 
+	    // Set TT ratios for color
+	    get_TT_average();
 	
 	    svg.selectAll("point")
 		.data(xData)
@@ -272,7 +277,8 @@ d3.text("alldata.csv", function(unParsed)
 			}))
 		.style("fill", function(d, i){
 			var dep_ind = alldata[i][2];
-			return color(departments[dep_ind][1]);
+			var TT_ratio = alldata[i][15] / (alldata[i][10] + alldata[i][11]);
+			return color_by_TT_ratio(TT_ratio, color(departments[dep_ind][1]));
 		    })
 		.style("stroke-width", ".5px")
 		.on("mouseover", function(d,i){
@@ -332,6 +338,8 @@ $('input[type=radio]').change(function(){
 		    })])
 	    .range([h - padding, padding]);
 
+	// Set TT ratios for color
+	get_TT_average();
 
 	var point = svg.selectAll(".point")
 	    .data(xData)
@@ -341,7 +349,12 @@ $('input[type=radio]').change(function(){
 		    x_val = xScale(d[0]);
 		    y_val = yScale(yData[i][0]);
 		    return "translate(" + x_val + "," + y_val + ")"; }
-		);
+		)
+	    .style("fill", function(d, i){
+		    var dep_ind = alldata[i][2];
+		    var TT_ratio = alldata[i][15] / (alldata[i][10] + alldata[i][11]);
+		    return color_by_TT_ratio(TT_ratio, color(departments[dep_ind][1]));
+		});
         
         svg.select(".x-axis")
 	    .transition()
@@ -444,10 +457,40 @@ function get_values(valindex){
     return val_array;
 }
 
-// Brandon - Modified to hit the lookup table instead of the value
-function color_by_department(department){
-    return color(departments[alldata[department][2]][1]);
+// Make lightness a function of the ratio of T/TT faculty to non-T/TT faculty
+// In the data: 15 / (10+11) for T/TT to non-TT
+// The function takes the current lightness value of the color, and scales it up or down the percentage of its TT ratio that is away from the mean
+// Ex: TT_ratio is .2, the average is .5, then the lightness value is scaled down .3 of its previous value. 
+function color_by_TT_ratio(TT_ratio, rgb_color){
+    var hsl_color = d3.hsl(rgb_color);
+    var lightness = hsl_color.l;
+    var scale_factor = TT_ratio - TT_average;
+    var lightness_to_scale = 0;
+
+    if(scale_factor > 0){
+	lightness_to_scale = 1 - lightness;
+    } else{
+	lightness_to_scale = lightness;
+    }
+
+    hsl_color.l = hsl_color.l + lightness_to_scale * scale_factor;
+    return d3.rgb(hsl_color);
 }
+
+function get_TT_average(){
+    TT_min = 1;
+    TT_max = 0;
+    for(var i = 0; i < alldata.length; i++){
+	var TT_ratio = alldata[i][15] / (alldata[i][10] + alldata[i][11]);
+	if(TT_ratio < TT_min){
+	    TT_min = TT_ratio;
+	}else if(TT_ratio > TT_max){
+	    TT_max = TT_ratio;
+	}	
+    }
+    TT_average = (TT_min + TT_max) / 2;
+}
+
 
 // Use the global select date to reset the data
 function set_data(){
