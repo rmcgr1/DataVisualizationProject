@@ -9,7 +9,11 @@ var padding = 30;
 var radius_min = 100;
 var radius_max = 700;
 
-var color = d3.scale.category20();
+//var color = d3.scale.category20();
+
+var color = function(){
+    return d3.rgb("#6baed6")
+};
 
 // Selection groups, which identify their columns
 var sel_indexes = [7, 8, 9, 20, 21, 22, 31, '',10, 11, 15]
@@ -36,7 +40,7 @@ var departments = [
 		   ["Sch of Soc Work", 5, "triangle-up"]
 		   ];
 
-var lines = [["Median", "rgb(6,120,155)", "x-median"], ["Mean", "rgb(120,50,50)","x-mean"]]
+var lines = [["Median", "#ff7f0e", "x-median"], ["Mean", "#d62728","x-mean"]]
 
     // Quick Generate a Legend
     legend = d3.select("#legend")
@@ -224,14 +228,15 @@ d3.text("alldata.csv", function(unParsed)
 		
 		
 	    // Draw Median-Mean Lines
-	    // Blue
+	    // Orange
 	    xMedian = svg.append("svg:line")
 		.attr("x1", xScale(x_median))
 		.attr("y1", 0 + padding)
 		.attr("x2", xScale(x_median))
 		.attr("y2", h - padding)
 		.attr("class", "x-median")
-		.style("stroke", "rgb(6,120,155)");
+		.style("stroke-width","2")
+		.style("stroke", "#ff7f0e");
 
 	    yMedian = svg.append("svg:line")
 		.attr("x1", 0 + padding)
@@ -239,16 +244,18 @@ d3.text("alldata.csv", function(unParsed)
 		.attr("x2", w - padding)
 		.attr("y2", yScale(y_median))
 		.attr("class", "y-median")
-		.style("stroke", "rgb(6,120,155)");
-	
-	    // Brown
+		.style("stroke-width","2")
+		.style("stroke", "#ff7f0e");
+   
+	    // Red
 	    xMean = svg.append("svg:line")
 		.attr("x1", xScale(x_mean))
 		.attr("y1", 0 + padding)
 		.attr("x2", xScale(x_mean))
 		.attr("y2", h - padding)
 		.attr("class", "x-mean")
-		.style("stroke", "rgb(120,50,50)");
+		.style("stroke-width","2")
+		.style("stroke", "#d62728");
 
 	    yMean = svg.append("svg:line")
 		.attr("x1", 0 + padding)
@@ -256,7 +263,8 @@ d3.text("alldata.csv", function(unParsed)
 		.attr("x2", w - padding)
 		.attr("y2", yScale(y_mean))
 		.attr("class", "y-mean")
-		.style("stroke", "rgb(120,50,50)");
+		.style("stroke-width","2")
+		.style("stroke", "#d62728");
 
 	    // Set TT ratios for color
 	    get_TT_average();
@@ -280,7 +288,8 @@ d3.text("alldata.csv", function(unParsed)
 			var TT_ratio = alldata[i][15] / (alldata[i][10] + alldata[i][11]);
 			return color_by_TT_ratio(TT_ratio, color(departments[dep_ind][1]));
 		    })
-		.style("stroke-width", ".5px")
+		.style("stroke-width", ".6px")
+		.style("stroke", "#000000")
 		.on("mouseover", function(d,i){
 			tooltip.transition()
 			    .duration(200)
@@ -389,7 +398,9 @@ $('input[type=radio]').change(function(){
 	    .attr("x2", xScale(x_median))
 	    .attr("y2", h - padding)
 	    .attr("class", "x-median")
-	    .style("stroke", "rgb(6,120,155)");
+	    .style("stroke-width","2")
+	    .style("stroke", "#ff7f0e");
+
 
         yMedian = svg.select(".y-median")
 	    .transition()
@@ -399,7 +410,9 @@ $('input[type=radio]').change(function(){
 	    .attr("x2", w - padding)
 	    .attr("y2", yScale(y_median))
 	    .attr("class", "y-median")
-	    .style("stroke", "rgb(6,120,155)");
+	    .style("stroke-width","2")
+	    .style("stroke", "#ff7f0e");
+	    
 
 	xMean = svg.select(".x-mean")
 	    .transition()
@@ -409,7 +422,9 @@ $('input[type=radio]').change(function(){
 	    .attr("x2", xScale(x_mean))
 	    .attr("y2", h - padding)
 	    .attr("class", "x-mean")
-	    .style("stroke", "rgb(120,50,50)");
+	    .style("stroke-width","2")
+	    .style("stroke", "#d62728");
+
 
 	yMean = svg.select(".y-mean")
 	    .transition()
@@ -419,7 +434,9 @@ $('input[type=radio]').change(function(){
 	    .attr("x2", w - padding)
 	    .attr("y2", yScale(y_mean))
 	    .attr("class", "y-mean")
-	    .style("stroke", "rgb(120,50,50)");
+	    .style("stroke-width","2")
+	    .style("stroke", "#d62728");
+
     });
 
 //////
